@@ -5,7 +5,7 @@ import frc.robot.raiderlib.motor.TFXMotorSimple;
 import frc.robot.raiderlib.motor.TSRXMotorSimple;
 import frc.robot.raiderlib.motor.VSPXMotorSimple;
 
-public class MotorToControllerSimple {
+public class MotorControllerSimple {
     private CommonControllers controller;
     private int id;
     private boolean brushless;
@@ -28,7 +28,7 @@ public class MotorToControllerSimple {
      * @param maxOut - Maximum ControlPercent input.
      * @param useAbsolute - Whether we are attaching an AbsoluteEncoder or not.
      */
-    private MotorToControllerSimple(CommonControllers controller, int id, boolean brushless, String exportFileName, double minDutyCycle, boolean velocityControl, double maxOut, boolean useAbsolute) {
+    private MotorControllerSimple(CommonControllers controller, int id, boolean brushless, String exportFileName, double minDutyCycle, boolean velocityControl, double maxOut, boolean useAbsolute) {
         this.controller = controller;
         this.id = id;
         this.brushless = brushless;

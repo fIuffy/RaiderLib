@@ -1,10 +1,12 @@
-package frc.robot.raiderlib.builders.struct;
+package frc.robot.raiderlib.motor;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
+
+import frc.robot.raiderlib.motor.struct.MotorSimple;
 
 public class SPARKMotorSimple extends MotorSimple{
 

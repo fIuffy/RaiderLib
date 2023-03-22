@@ -141,7 +141,7 @@ public class MotorSimple {
     /**
      * Enable PID Exporting, creates a file.
      * Note: I (Chloe) personally recommend to use an online PIDTuner to make tuning less of a trial and error thing.
-     * Although not required, exports are made specifically for eliminating that trial and error factor.
+     * Although using exported PID data is not required, I have created an automated export process incase it is desired.
      * @see https://pidtuner.com
      */
     public void enablePIDExport() {
@@ -171,8 +171,7 @@ public class MotorSimple {
 
 
     /**
-     * Basic function to run 8 steps that write to a file on the RoboRIO.
-     * No params needed.
+     * Basic periodic function to run 8 steps that write to a file on the RoboRIO.
      */
     public void exportPeriodic() {
         long difference = System.currentTimeMillis() - startTime;
@@ -202,7 +201,7 @@ public class MotorSimple {
     }
 
     /**
-     * Convert setting ControlPercent of motor to be ran as a command.
+     * Setting ControlPercent input of motor to be ran as a command.
      * @param percent - Value -1.0 through 1.0
      * @return Command runnable by WPILib's Command-based Structure
      */
@@ -211,7 +210,7 @@ public class MotorSimple {
     }
 
     /**
-     * Convert setting Position of motor to be ran as a command.
+     * Setting position of motor to be ran as a command.
      * @param position - Encoder position
      * @return Command runnable by WPILib's Command-based Structure
      */
@@ -220,7 +219,7 @@ public class MotorSimple {
     }
 
     /**
-     * Convert setting Velocity of motor to be ran as a command.
+     * Setting velocity of motor to be ran as a command.
      * @param velocity - Velocity (m/s)
      * @return Command runnable by WPILib's Command-based Structure
      */
@@ -229,7 +228,7 @@ public class MotorSimple {
     }
 
     /**
-     * Convert setting Velocity of motor to be ran as a command.
+     * Enabling PIDExport of motor to be ran as a command.
      * @return Command runnable by WPILib's Command-based Structure
      */
     public Command exportPIDData() {

@@ -2,12 +2,12 @@ package frc.robot.raiderlib.builders;
 
 import java.util.ArrayList;
 
-import frc.robot.raiderlib.motor.struct.MotorToControllerSimple;
+import frc.robot.raiderlib.motor.struct.MotorControllerSimple;
 
 
 public class MovingPart {
     private final String pseudoName, desc;
-    private ArrayList<MotorToControllerSimple> motors;
+    private ArrayList<MotorControllerSimple> motors;
      /**
      * Constructor for creating a basic Moving Part.
      * @param psuedoName - Readable name of part.
@@ -39,14 +39,14 @@ public class MovingPart {
      * The super constructor is called specifically for the implementation of PID Exports.
      */
     public void periodic() {
-        for(MotorToControllerSimple controller : motors) {
+        for(MotorControllerSimple controller : motors) {
             if(controller.getMotor().exporting) {
                 controller.getMotor().exportPeriodic();
             }
         }
     }
 
-    public MovingPart addMotor(MotorToControllerSimple motor) { 
+    public MovingPart addMotor(MotorControllerSimple motor) { 
         motors.add(motor);
         return this;
     }
@@ -59,7 +59,7 @@ public class MovingPart {
         return this.desc;
     }
 
-    public ArrayList<MotorToControllerSimple> getMotors() {
+    public ArrayList<MotorControllerSimple> getMotors() {
         return this.motors;
     }
 }
