@@ -116,4 +116,12 @@ public class TFXMotorSimple extends MotorSimple{
         return !isBrake;
     }
     
+
+    /**
+     * Get the motor as a TalonFX object
+     * @return MotorController as a TalonFX object
+     */
+    public TalonFX getTalon() {
+        return this.motor;
+    }
 }

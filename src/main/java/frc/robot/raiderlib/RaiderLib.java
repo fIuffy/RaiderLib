@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.raiderlib.builders.MovingPart;
-import frc.robot.raiderlib.drive.DriveSystem;
+import frc.robot.raiderlib.drive.struct.DriveSystem;
 
 public class RaiderLib extends SubsystemBase{
     
@@ -35,7 +35,9 @@ public class RaiderLib extends SubsystemBase{
         for(MovingPart part : movingParts) {
             part.periodic();
         }
-        driveSystem.periodic();
+        if(driveSystem != null) {
+            driveSystem.periodic();
+        }
     }
 
     public void setDriveSystem(DriveSystem driveSystem) {

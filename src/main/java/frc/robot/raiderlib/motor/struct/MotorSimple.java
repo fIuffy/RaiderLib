@@ -22,6 +22,8 @@ public class MotorSimple {
     public double minDutyCycle;
     public boolean velocityControl;
 
+    public double encoderConversionFactor = 1.0d;
+
     /**
      * MotorSimple constructor which makes creating Motors easier as different companies make different controllers and different libraries.
      * So this is made in order to make it Standard to confuse newer 1518 programmers.
@@ -37,6 +39,30 @@ public class MotorSimple {
         this.minDutyCycle = minDutyCycle;
         this.velocityControl = velocityControl;
         this.maxOut = maxOut;
+    }
+
+    /**
+     * Set the Encoder Conversion Factor (Used for velocity/drive control)
+     * @param factor - Value to set conversion factor to
+     */
+    public void setEncoderConversionFactor(double factor) {
+        this.encoderConversionFactor = factor;
+    }
+
+    /**
+     * 
+     * @return Encoder Position multiplied by a constant factor
+     */
+    public double getMotorPositionConverted() {
+        return this.getMotorPosition()*this.encoderConversionFactor;
+    }
+
+    /**
+     * 
+     * @return Encoder Velocity multiplied by a constant factor
+     */
+    public double getMotorVelocityConverted() {
+        return this.getMotorPosition()*this.encoderConversionFactor;
     }
     
 
@@ -139,8 +165,8 @@ public class MotorSimple {
     }
 
     /**
-     * Enable PID Exporting, creates a file.
-     * Note: I (Chloe) personally recommend to use an online PIDTuner to make tuning less of a trial and error thing.
+     * Enable PID Exporting (creates a file).
+     * I (Chloe) personally recommend to use an online PIDTuner to make tuning less of a trial and error thing.
      * Although using exported PID data is not required, I have created an automated export process incase it is desired.
      * @see https://pidtuner.com
      */

@@ -6,7 +6,6 @@ import frc.robot.raiderlib.motor.TSRXMotorSimple;
 import frc.robot.raiderlib.motor.VSPXMotorSimple;
 
 public class MotorControllerSimple {
-    private CommonControllers controller;
     private int id;
     private boolean brushless;
     private String exportFileName;
@@ -28,15 +27,15 @@ public class MotorControllerSimple {
      * @param maxOut - Maximum ControlPercent input.
      * @param useAbsolute - Whether we are attaching an AbsoluteEncoder or not.
      */
-    private MotorControllerSimple(CommonControllers controller, int id, boolean brushless, String exportFileName, double minDutyCycle, boolean velocityControl, double maxOut, boolean useAbsolute) {
-        this.controller = controller;
+    public MotorControllerSimple(CommonControllers controller, int id, boolean brushless, String exportFileName, double minDutyCycle, boolean velocityControl, double maxOut, boolean useAbsolute) {
         this.id = id;
         this.brushless = brushless;
         this.exportFileName = exportFileName;
         this.minDutyCycle = minDutyCycle;
         this.velocityControl = velocityControl;
         this.maxOut = maxOut;
-        createSimpleController(useAbsolute);
+        this.motor = getMotorSimple(controller, useAbsolute);
+        if(this.motor != null) this.motor.setFeedback(useAbsolute);
     }
 
     public MotorSimple getMotor() {
@@ -47,22 +46,18 @@ public class MotorControllerSimple {
      * Set the motor field in terms of what controller we are using
      * @param useAbsolute
      */
-    private void createSimpleController(boolean useAbsolute) {
+    private MotorSimple getMotorSimple(CommonControllers controller, boolean useAbsolute) {
         switch(controller) {
             case TALON_FX:
-                this.motor = new TFXMotorSimple(this.id, this.brushless, this.exportFileName, this.minDutyCycle, this.velocityControl, this.maxOut);
-                break;
+                return new TFXMotorSimple(this.id, this.brushless, this.exportFileName, this.minDutyCycle, this.velocityControl, this.maxOut);
             case TALON_SRX:
-                this.motor = new TSRXMotorSimple(this.id, this.brushless, this.exportFileName, this.minDutyCycle, this.velocityControl, this.maxOut);
-                break;
+                return new TSRXMotorSimple(this.id, this.brushless, this.exportFileName, this.minDutyCycle, this.velocityControl, this.maxOut);
             case SPARK_MAX:
-                this.motor = new SPARKMotorSimple(this.id, this.brushless, this.exportFileName, this.minDutyCycle, this.velocityControl, this.maxOut);
-                break;
+                return new SPARKMotorSimple(this.id, this.brushless, this.exportFileName, this.minDutyCycle, this.velocityControl, this.maxOut);
             case VICTOR_SPX:
-                this.motor = new VSPXMotorSimple(this.id, this.brushless, this.exportFileName, this.minDutyCycle, this.velocityControl, this.maxOut);
-                break;
+                return new VSPXMotorSimple(this.id, this.brushless, this.exportFileName, this.minDutyCycle, this.velocityControl, this.maxOut);
         }
-        this.motor.setFeedback(useAbsolute);
+        return null;
     }
 
     /**

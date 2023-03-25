@@ -46,19 +46,36 @@ public class MovingPart {
         }
     }
 
+    /**
+     * Add a motor to the part's list of motors
+     * @param motor MotorControllerSimple
+     * @return this (MovingPart)
+     */
     public MovingPart addMotor(MotorControllerSimple motor) { 
         motors.add(motor);
         return this;
     }
 
+    /**
+     * 
+     * @return English readable name of part
+     */
     public String getPseudoName() {
         return this.pseudoName;
     }
 
+    /**
+     * 
+     * @return Description of part
+     */
     public String getDesc() {
         return this.desc;
     }
 
+    /**
+     * 
+     * @return ArrayList of MotorControllers
+     */
     public ArrayList<MotorControllerSimple> getMotors() {
         return this.motors;
     }
