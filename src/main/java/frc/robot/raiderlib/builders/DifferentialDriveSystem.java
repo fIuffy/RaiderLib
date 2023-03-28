@@ -1,16 +1,13 @@
 package frc.robot.raiderlib.builders;
 
-import java.math.BigDecimal;
-
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PS4Controller.Axis;
-import frc.robot.raiderlib.drive.struct.DriveConstants;
-import frc.robot.raiderlib.drive.struct.DriveSystem;
+import frc.robot.raiderlib.drive.DriveConstants;
+import frc.robot.raiderlib.drive.DriveSystem;
 import frc.robot.raiderlib.motor.struct.MotorControllerSimple;
 import frc.robot.raiderlib.motor.struct.MotorControllerSimple.CommonControllers;
 
@@ -29,14 +26,19 @@ public class DifferentialDriveSystem extends DriveSystem{
     public final MotorControllerSimple rightRear = new MotorControllerSimple(CommonControllers.TALON_FX, DriveConstants.RIGHT_REAR, true, null, DriveConstants.MIN_DRIVE_DUTYCYCLE,
                                                                             true, DriveConstants.MAX_CONTROLPERCENT, false);
 
-    public DifferentialDriveSystem(XboxController controller, String exportName) {
-        super(controller, exportName);
+    /**
+     * Creates a DifferentialDriveSystem with only one parameter. (Modify DriveConstants and PID Constants before using)
+     * @param controller XboxController
+     */
+    public DifferentialDriveSystem(XboxController controller) {
+        super(controller, "differential");
         this.driveKinematics = new DifferentialDriveKinematics(Units.inchesToMeters(DriveConstants.DIFFERENTIAL_TRACK_WIDTH));
         this.driveOdometry = new DifferentialDriveOdometry(this.getGyro().getRotation2d(), 0.0d, 0.0d);
         this.leftFront.getMotor().setEncoderConversionFactor(DriveConstants.ENC_TO_METERS_FACTOR);
         this.leftRear.getMotor().setEncoderConversionFactor(DriveConstants.ENC_TO_METERS_FACTOR);
         this.rightFront.getMotor().setEncoderConversionFactor(DriveConstants.ENC_TO_METERS_FACTOR);
         this.rightRear.getMotor().setEncoderConversionFactor(DriveConstants.ENC_TO_METERS_FACTOR);
+        
         this.exportStepTime = 1.0d;
     }
 
@@ -48,30 +50,60 @@ public class DifferentialDriveSystem extends DriveSystem{
 
     @Override
     public void driveRobotCentricMethod(ChassisSpeeds speeds) {
-        double moveControlPercent = getDriverAxis(Axis.kLeftY, getController());
-        double rotateControlPercent = getDriverAxis(Axis.kRightX, getController());
-
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(moveControlPercent*DriveConstants.MAX_VELOCITY, 0, rotateControlPercent*DriveConstants.MAX_ANGULAR_VELOCITY);
-
+        ChassisSpeeds chassisSpeeds = controllerToDifferentialSpeeds();
         if(speeds != null) chassisSpeeds = speeds;
 
         DifferentialDriveWheelSpeeds wheelSpeeds = driveKinematics.toWheelSpeeds(chassisSpeeds);
-        double leftVelocity = wheelSpeeds.leftMetersPerSecond;
-        double rightVelocity = wheelSpeeds.rightMetersPerSecond;
-
-        leftFront.getMotor().setMotorVelocity(leftVelocity);
-        leftRear.getMotor().setMotorVelocity(leftVelocity);
-        /** Incorporate Rear Motors (Delete if not used) */
-        rightFront.getMotor().setMotorVelocity(rightVelocity);
-        rightRear.getMotor().setMotorVelocity(rightVelocity);
+        outputWheelSpeeds(wheelSpeeds);
     }
 
+    /**
+     * DifferentialDriveWheelSpeeds consumer used for driving ChassisSpeeds but assuming the inputs are in Velocity form
+     * @param speeds - Wheel speeds
+     */
+    public void outputWheelSpeeds(DifferentialDriveWheelSpeeds speeds) {
+        double leftControlPercent = speeds.leftMetersPerSecond;
+        double rightControlPercent = speeds.rightMetersPerSecond;
+
+        leftFront.getMotor().setMotorVelocity(leftControlPercent);
+        leftRear.getMotor().setMotorVelocity(leftControlPercent);
+
+         /** Incorporate Rear Motors (Delete if not used) */
+        rightFront.getMotor().setMotorVelocity(rightControlPercent);
+        rightRear.getMotor().setMotorVelocity(rightControlPercent);
+    }
+
+    /**
+     * DifferentialDriveWheelSpeeds consumer used for driving ChassisSpeeds but assuming the inputs are in ControlPercent form
+     * @param speeds - Wheel speeds
+     */
+    public void outputWheelSpeedsDutyCycle(DifferentialDriveWheelSpeeds speeds) {
+        double leftControlPercent = speeds.leftMetersPerSecond;
+        double rightControlPercent = speeds.rightMetersPerSecond;
+
+        leftFront.getMotor().setMotorControlPercent(leftControlPercent);
+        leftRear.getMotor().setMotorControlPercent(leftControlPercent);
+
+         /** Incorporate Rear Motors (Delete if not used) */
+        rightFront.getMotor().setMotorControlPercent(rightControlPercent);
+        rightRear.getMotor().setMotorControlPercent(rightControlPercent);
+    }
+
+    @Override
     public void driveAllControlPercent(double input) {
-        leftFront.getMotor().setMotorControlPercent(input);
-        leftRear.getMotor().setMotorControlPercent(input);
-        /** Incorporate Rear Motors (Delete if not used) */
-        rightFront.getMotor().setMotorControlPercent(input);
-        rightRear.getMotor().setMotorControlPercent(input);
+        ChassisSpeeds speeds;
+        this.currentAppliedInput = input;
+        if(!spinExporting) {
+            speeds = new ChassisSpeeds(input, 0.0d, 0.0d);
+        } else {
+            speeds = new ChassisSpeeds(0.0d, 0.0d, input);
+        }
+        outputWheelSpeedsDutyCycle(driveKinematics.toWheelSpeeds(speeds));
+    }
+
+    @Override
+    public double getFrontLeftVelocity() {
+        return leftFront.getMotor().getMotorVelocityConverted();
     }
     
     /**
@@ -90,40 +122,19 @@ public class DifferentialDriveSystem extends DriveSystem{
         rightRear.getMotor().setMotorControlPercent(rightInput);
     }
 
-    @Override
-    public void exportPeriodic() {
-        long difference = System.currentTimeMillis() - startTime;
-        BigDecimal bd = BigDecimal.valueOf(difference).movePointLeft(3);
-        double diffSeconds = bd.doubleValue();
-        switch((int)Math.floor(diffSeconds/this.exportStepTime)) {
-            case 0: this.driveAllControlPercent(0.0d); break;
-            case 1: this.driveAllControlPercent(DriveConstants.MIN_DRIVE_DUTYCYCLE); break;
-            case 2: this.driveAllControlPercent(0.0d); break;
-            case 3: this.driveAllControlPercent(-DriveConstants.MIN_DRIVE_DUTYCYCLE); break;
-            case 4: this.driveAllControlPercent(0.0d); break;
-            case 5: this.driveAllControlPercent(DriveConstants.MIN_DRIVE_DUTYCYCLE*2); break;
-            case 6: this.driveAllControlPercent(0.0d); break;
-            case 7: this.driveAllControlPercent(-DriveConstants.MIN_DRIVE_DUTYCYCLE*2); break;
-            case 8: this.driveAllControlPercent(0.0d); break;
-            default: this.disablePIDExport(); return;
-        }
-        /**
-         * Actually append to the FileWriter
-         * We use append so that we can just simply add on without needed to write to the file through one object.
-         */
-        try {
-            writer.append(diffSeconds+","+leftFront.getMotor().getMotorOutputPercent()+","+(leftFront.getMotor().getMotorVelocityConverted()) + "\n");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * 
+     * @return DifferentialDriveOdometry main kinematics object
+     */
     public DifferentialDriveKinematics getKinematics() {
         return this.driveKinematics;
     }
 
+    /**
+     * 
+     * @return DifferentialDriveOdometry main odometry object
+     */
     public DifferentialDriveOdometry getOdometry() {
         return this.driveOdometry;
     }
-    
 }

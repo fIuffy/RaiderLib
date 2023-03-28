@@ -11,14 +11,18 @@ import frc.robot.raiderlib.RaiderLib;
 public class RobotContainer {
 
 
-  // Create the RaiderLib Subsystem object
+  /** 
+   * Create the RaiderLib Subsystem object
+   */ 
   public static final RaiderLib raiderLib = new RaiderLib();
 
   public RobotContainer() {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");

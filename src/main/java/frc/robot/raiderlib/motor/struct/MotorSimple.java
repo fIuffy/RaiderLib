@@ -35,7 +35,7 @@ public class MotorSimple {
      * @param maxOut - Limiter for ControlPercent input.
      */
     public MotorSimple(int canID, boolean brushless, String fileName, double minDutyCycle, boolean velocityControl, double maxOut) {
-        this.exportFile+=fileName;
+        this.exportFile = this.exportFile+fileName+".csv";
         this.minDutyCycle = minDutyCycle;
         this.velocityControl = velocityControl;
         this.maxOut = maxOut;

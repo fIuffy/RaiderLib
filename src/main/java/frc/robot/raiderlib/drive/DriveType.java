@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.drive.struct;
+package frc.robot.raiderlib.drive;
 
 public enum DriveType {
     DIFFERENTIAL_DRIVE,

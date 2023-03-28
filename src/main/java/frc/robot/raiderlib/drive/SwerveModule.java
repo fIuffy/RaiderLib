@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.drive.swerve;
+package frc.robot.raiderlib.drive;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
@@ -12,9 +12,12 @@ import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.raiderlib.drive.struct.DriveConstants;
 import frc.robot.raiderlib.motor.TFXMotorSimple;
 
+/**
+ * SwerveModule class used to construct each individual module in a more simple matter.
+ * @author Rob-Heslin and Chloe Quinn
+ */
 public class SwerveModule {
     public TFXMotorSimple driveMotor;
     public TFXMotorSimple rotateMotor;
@@ -224,7 +227,7 @@ public class SwerveModule {
 
     /**
      * This is a method meant for testing by getting the count from the 
-     * rotational encoder which is internal to the NEO550. This encoder 
+     * rotational encoder which is internal to the TalonFX. This encoder 
      * is relative, and does not easily translate to a specific rotational 
      * position of the swerve module.
      * 
@@ -303,7 +306,7 @@ public class SwerveModule {
         // add the encoder distance to the current encoder count
         double outputEncValue = targetAngle + getRelEncCount();
 
-        if(Math.abs(targetState.speedMetersPerSecond) < DriveConstants.MIN_DRIVE_VELOCITY) {
+        if(Math.abs(targetState.speedMetersPerSecond) < DriveConstants.MIN_DRIVE_DUTYCYCLE) {
             stopAll();
         } else {
             // Set the setpoint using setReference on the TalonFX
