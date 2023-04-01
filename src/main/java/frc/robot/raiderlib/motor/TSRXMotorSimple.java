@@ -16,12 +16,12 @@ public class TSRXMotorSimple extends MotorSimple{
     public TSRXMotorSimple(int canID, boolean brushless, String fileName, double minDutyCycle, boolean velocityControl, double maxOut) {
         super(canID, brushless, fileName, minDutyCycle, velocityControl, maxOut);
         this.motor = new TalonSRX(canID);
+        motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
         this.isBrake = false;
     }
 
     @Override
-    public void setFeedback(boolean absolute) {
-        motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
+    public void useAbsoluteForFeedback(boolean absolute) {
         motor.configSelectedFeedbackSensor(absolute ? FeedbackDevice.QuadEncoder : FeedbackDevice.IntegratedSensor);
     }
 

@@ -1,6 +1,10 @@
 package frc.robot.raiderlib.drive;
 
+import java.util.HashMap;
+
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 
 public class DriveConstants {
     /**
@@ -136,21 +140,39 @@ public class DriveConstants {
     public static final double MAX_ANGULAR_VELOCITY = Math.toRadians(MAX_ANGULAR_VELOCITY_DEG);
 
     /**
-     * Drive Translation Porportional gain. PID input is motor control percent speed and the output is motor encoder velocity (with conversion).
+     * Drive Translation Porportional gain. PID input is motor velocity and the output is X (or Y) position (meters).
      */
-    public static final double ROBOT_TRANSLATION_P = 0.0d;
+    public static final double ROBOT_POSE_P = 0.0d;
     /**
      * Drive Translation Integral gain (not recommended to be used).
      */
-    public static final double ROBOT_TRANSLATION_I = 0.0d;
+    public static final double ROBOT_POSE_I = 0.0d;
     /**
      * Drive Translation Derivative gain.
      */
-    public static final double ROBOT_TRANSLATION_D = 0.0d;
+    public static final double ROBOT_POSE_D = 0.0d;
     /**
      * Drive Translation FeedForward gain.
      */
-    public static final double ROBOT_TRANSLATION_FF = 1023 / (MAX_VELOCITY / ENC_TO_METERS_FACTOR);
+    public static final double ROBOT_POSE_FF = 0.0d;
+
+
+    /**
+     * Drive Translation Porportional gain. PID input is motor control percent speed and the output is motor encoder velocity (with conversion).
+     */
+    public static final double ROBOT_VELOCITY_P = 0.0d;
+    /**
+     * Drive Translation Integral gain (not recommended to be used).
+     */
+    public static final double ROBOT_VELOCITY_I = 0.0d;
+    /**
+     * Drive Translation Derivative gain.
+     */
+    public static final double ROBOT_VELOCITY_D = 0.0d;
+    /**
+     * Drive Translation FeedForward gain.
+     */
+    public static final double ROBOT_VELOCITY_FF = 1023 / (MAX_VELOCITY / ENC_TO_METERS_FACTOR);
 
     /**
      * SwerveModule Rotate Motor Porportional gain. PID input is swerve rotate motor control percent speed and the output is rotate motor encoder postion,
@@ -186,4 +208,12 @@ public class DriveConstants {
      * Robot spin PIDController tolerance
      */
     public static final double ROBOT_ROT_TOLERANCE = Math.toRadians(0.5);
+
+    
+    public static final HashMap<String, Command> markerMap = new HashMap<>();
+
+
+    public static final void addPathEventMarkers() {
+        markerMap.put("marker1", new PrintCommand("Passed marker 1"));
+    }
 }

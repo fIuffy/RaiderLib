@@ -35,7 +35,7 @@ public class MotorControllerSimple {
         this.velocityControl = velocityControl;
         this.maxOut = maxOut;
         this.motor = getMotorSimple(controller, useAbsolute);
-        if(this.motor != null) this.motor.setFeedback(useAbsolute);
+        if(this.motor != null) this.motor.useAbsoluteForFeedback(useAbsolute);
     }
 
     public MotorSimple getMotor() {

@@ -1,11 +1,20 @@
 package frc.robot.raiderlib.builders;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPRamseteCommand;
+
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.raiderlib.RaiderLib;
 import frc.robot.raiderlib.drive.DriveConstants;
 import frc.robot.raiderlib.drive.DriveSystem;
 import frc.robot.raiderlib.motor.struct.MotorControllerSimple;
@@ -15,6 +24,7 @@ public class DifferentialDriveSystem extends DriveSystem{
 
     private final DifferentialDriveKinematics driveKinematics;
     private final DifferentialDriveOdometry driveOdometry;
+    private final RamseteController ramseteController;
 
     public final MotorControllerSimple leftFront = new MotorControllerSimple(CommonControllers.TALON_FX, DriveConstants.LEFT_FRONT, true, null, DriveConstants.MIN_DRIVE_DUTYCYCLE,
                                                                             true, DriveConstants.MAX_CONTROLPERCENT, false);
@@ -40,6 +50,7 @@ public class DifferentialDriveSystem extends DriveSystem{
         this.rightRear.getMotor().setEncoderConversionFactor(DriveConstants.ENC_TO_METERS_FACTOR);
         
         this.exportStepTime = 1.0d;
+        this.ramseteController = new RamseteController();
     }
 
     @Override
@@ -90,6 +101,31 @@ public class DifferentialDriveSystem extends DriveSystem{
     }
 
     @Override
+    public void resetOdometry(Pose2d pose2d) {
+        this.driveOdometry.resetPosition(getGyroRot2d(), 0.0d, 0.0d, pose2d);
+    }
+
+    @Override
+    public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> {
+            if(isFirstPath){
+                this.resetOdometry(traj.getInitialPose());
+            }
+            }),
+            new PPRamseteCommand(
+                traj,
+                this::getCurrentPose,
+                this.ramseteController,
+                this.driveKinematics,
+                this::outputMetersPerSecond,
+                true,
+                RaiderLib.INSTANCE
+            )
+        );
+    }
+
+    @Override
     public void driveAllControlPercent(double input) {
         ChassisSpeeds speeds;
         this.currentAppliedInput = input;
@@ -102,24 +138,25 @@ public class DifferentialDriveSystem extends DriveSystem{
     }
 
     @Override
-    public double getFrontLeftVelocity() {
-        return leftFront.getMotor().getMotorVelocityConverted();
+    public double getAvgDriveVelociy() {
+        return (leftFront.getMotor().getMotorVelocityConverted() + leftRear.getMotor().getMotorVelocityConverted()
+        + rightFront.getMotor().getMotorVelocityConverted() + rightRear.getMotor().getMotorVelocity()) / 4;
     }
     
     /**
-     * Double BiConsumer used by PathPlanner for setting motor speeds
+     * Double BiConsumer used by PathPlanner for setting motor speeds in duty cycle form
+     * @apiNote This is the only consumer used by PathPlanner for setting motor speeds where the form is in duty cycle form (mjansen, why??)
+     * Swerve and Mecanum ControllerCommands in PathPlanner use velocity form.
      * @param leftVolts - Input of left motors, in volts
      * @param rightVolts - Input of right motors, in volts
      */
-    public void outputVolts(double leftVolts, double rightVolts) {
-        double leftInput = 12.0d / leftVolts;
-        double rightInput = 12.0d / rightVolts;
+    public void outputMetersPerSecond(double leftVelocity, double rightVelocity) {
+        leftFront.getMotor().setMotorVelocity(leftVelocity);
+        leftRear.getMotor().setMotorVelocity(leftVelocity);
 
-        leftFront.getMotor().setMotorControlPercent(leftInput);
-        leftRear.getMotor().setMotorControlPercent(leftInput);
-        /** Incorporate Rear Motors (Delete if not used) */
-        rightFront.getMotor().setMotorControlPercent(rightInput);
-        rightRear.getMotor().setMotorControlPercent(rightInput);
+         /** Incorporate Rear Motors (Delete if not used) */
+        rightFront.getMotor().setMotorVelocity(rightVelocity);
+        rightRear.getMotor().setMotorVelocity(rightVelocity);
     }
 
     /**

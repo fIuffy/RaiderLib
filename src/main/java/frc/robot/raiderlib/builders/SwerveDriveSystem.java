@@ -1,5 +1,9 @@
 package frc.robot.raiderlib.builders;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -10,6 +14,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.raiderlib.RaiderLib;
 import frc.robot.raiderlib.drive.DriveConstants;
 import frc.robot.raiderlib.drive.DriveSystem;
 import frc.robot.raiderlib.drive.SwerveModule;
@@ -97,10 +104,40 @@ public class SwerveDriveSystem extends DriveSystem{
         }
     }
     
+    @Override
+    public void resetOdometry(Pose2d pose2d) {
+        this.driveOdometry.resetPosition(getGyroRot2d(), getSwerveModulePositions(), pose2d);
+    }
 
     @Override
-    public double getFrontLeftVelocity() {
-        return getAllModuleVelocity()[0];
+    public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> {
+                if(isFirstPath){
+                    this.resetOdometry(traj.getInitialPose());
+                }
+            }),
+            new PPSwerveControllerCommand(
+                traj, 
+                this::getCurrentPose,
+                this.driveKinematics,
+                new PIDController(DriveConstants.ROBOT_POSE_P, DriveConstants.ROBOT_POSE_I, DriveConstants.ROBOT_POSE_D),
+                new PIDController(DriveConstants.ROBOT_POSE_P, DriveConstants.ROBOT_POSE_I, DriveConstants.ROBOT_POSE_D),
+                this.spinController,
+                this::setModuleStatesVelocity,
+                true,
+                RaiderLib.INSTANCE
+            )
+        );
+    }
+
+    @Override
+    public double getAvgDriveVelociy() {
+        double velocity = 0.0d;
+        for(int i=0; i<4; i++){
+            velocity+=swerveModules[i].getDriveVelocity();
+        }
+        return velocity/4;
     }
 
     /**
@@ -108,10 +145,10 @@ public class SwerveDriveSystem extends DriveSystem{
      * @param states Desired SwerveModuleStates
      */
     public void setModuleStatesDutyCycle(SwerveModuleState[] states) {
-      SwerveDriveKinematics.desaturateWheelSpeeds(states, 1.0d);
-      for (int i = 0; i < states.length; i++) {
-          swerveModules[i].setModuleStateDutyCycle(states[i]);
-      }
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, 1.0d);
+        for (int i = 0; i < states.length; i++) {
+            swerveModules[i].setModuleStateDutyCycle(states[i]);
+        }
     }
 
     /**
@@ -119,10 +156,10 @@ public class SwerveDriveSystem extends DriveSystem{
      * @param states Desired SwerveModuleStates
      */
     public void setModuleStatesVelocity(SwerveModuleState[] states) {
-      SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_VELOCITY);
-      for (int i = 0; i < states.length; i++) {
-          swerveModules[i].setModuleState(states[i]);
-      }
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_VELOCITY);
+        for (int i = 0; i < states.length; i++) {
+            swerveModules[i].setModuleState(states[i]);
+        }
     }
 
     /**
@@ -130,7 +167,14 @@ public class SwerveDriveSystem extends DriveSystem{
      * @param chassisSpeeds Desired ChassisSpeeds
      */
     public void driveRobotCentric(ChassisSpeeds chassisSpeeds){
-      setModuleStatesVelocity(driveKinematics.toSwerveModuleStates(chassisSpeeds));
+        SwerveModuleState states[] = driveKinematics.toSwerveModuleStates(chassisSpeeds);
+        double wantedAngle = this.getController().getPOV();
+        if(wantedAngle != -1){
+            for(int i = 0 ; i < states.length; i++) {
+                states[i].angle = Rotation2d.fromDegrees(wantedAngle);
+            }
+        }
+        setModuleStatesVelocity(states);
     }
 
     /**
@@ -139,7 +183,14 @@ public class SwerveDriveSystem extends DriveSystem{
      * @param chassisSpeeds Desired ChassisSpeeds
      */ 
     public void driveRobotCentricDutyCycle(ChassisSpeeds chassisSpeeds){
-      setModuleStatesDutyCycle(driveKinematics.toSwerveModuleStates(chassisSpeeds));
+        SwerveModuleState states[] = driveKinematics.toSwerveModuleStates(chassisSpeeds);
+        double wantedAngle = this.getController().getPOV();
+        if(wantedAngle != -1){
+            for(int i = 0 ; i < states.length; i++) {
+                states[i].angle = Rotation2d.fromDegrees(wantedAngle);
+            }
+        }
+        setModuleStatesDutyCycle(states);
     }
 
     /**

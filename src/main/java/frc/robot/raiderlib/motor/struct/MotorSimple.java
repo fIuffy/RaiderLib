@@ -32,7 +32,7 @@ public class MotorSimple {
      * @param fileName - FileName for PID Exports.
      * @param minDutyCycle - Minimum speed in ControlPercent format.
      * @param velocityControl - Use velocity or not (Only really needed for things that drive wheels).
-     * @param maxOut - Limiter for ControlPercent input.
+     * @param maxOut - Limiter for speed input.
      */
     public MotorSimple(int canID, boolean brushless, String fileName, double minDutyCycle, boolean velocityControl, double maxOut) {
         this.exportFile = this.exportFile+fileName+".csv";
@@ -62,7 +62,7 @@ public class MotorSimple {
      * @return Encoder Velocity multiplied by a constant factor
      */
     public double getMotorVelocityConverted() {
-        return this.getMotorPosition()*this.encoderConversionFactor;
+        return this.getMotorVelocity()*this.encoderConversionFactor;
     }
     
 
@@ -71,7 +71,7 @@ public class MotorSimple {
      * to the controller or not
      * @param absolute - Use the absolute encoder
      */
-    public void setFeedback(boolean absolute) {
+    public void useAbsoluteForFeedback(boolean absolute) {
 
     }
 

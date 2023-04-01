@@ -1,5 +1,9 @@
 package frc.robot.raiderlib.builders;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPMecanumControllerCommand;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -8,6 +12,10 @@ import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.raiderlib.RaiderLib;
 import frc.robot.raiderlib.drive.DriveConstants;
 import frc.robot.raiderlib.drive.DriveSystem;
 import frc.robot.raiderlib.motor.struct.MotorControllerSimple;
@@ -73,6 +81,47 @@ public class MecanumDriveSystem extends DriveSystem{
         outputWheelSpeeds(driveKinematics.toWheelSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, this.getGyro().getRotation2d())));
     }
 
+    @Override
+    public void resetOdometry(Pose2d pose2d) {
+        this.driveOdometry.resetPosition(getGyroRot2d(), getWheelPositions(), pose2d);
+    }
+
+    /**
+     * Get positions of all mecanum wheels
+     * @return MecanumDriveWheelPositions
+     */
+    public MecanumDriveWheelPositions getWheelPositions() {
+        return new MecanumDriveWheelPositions(
+            leftFront.getMotor().getMotorPositionConverted(),
+            rightFront.getMotor().getMotorPositionConverted(),
+            leftRear.getMotor().getMotorPositionConverted(),
+            rightRear.getMotor().getMotorPositionConverted()
+        );
+    }
+
+    @Override
+    public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> {
+                if(isFirstPath){
+                    this.resetOdometry(traj.getInitialPose());
+                }
+            }),
+            new PPMecanumControllerCommand(
+                traj, 
+                this::getCurrentPose,
+                this.driveKinematics,
+                new PIDController(DriveConstants.ROBOT_POSE_P, DriveConstants.ROBOT_POSE_I, DriveConstants.ROBOT_POSE_D),
+                new PIDController(DriveConstants.ROBOT_POSE_P, DriveConstants.ROBOT_POSE_I, DriveConstants.ROBOT_POSE_D),
+                this.spinController,
+                DriveConstants.MAX_VELOCITY,
+                this::outputWheelSpeeds,
+                true,
+                RaiderLib.INSTANCE
+            )
+        );
+    }
+
     /**
      * MecanumDriveWheelSpeeds consumer used for driving ChassisSpeeds but assuming the inputs are in Velocity form
      * @param speeds - Wheel speeds
@@ -123,8 +172,9 @@ public class MecanumDriveSystem extends DriveSystem{
     }
 
     @Override
-    public double getFrontLeftVelocity() {
-        return leftFront.getMotor().getMotorVelocityConverted();
+    public double getAvgDriveVelociy() {
+        return (leftFront.getMotor().getMotorVelocityConverted() + leftRear.getMotor().getMotorVelocityConverted()
+        + rightFront.getMotor().getMotorVelocityConverted() + rightRear.getMotor().getMotorVelocity()) / 4;
     }
 
     /**

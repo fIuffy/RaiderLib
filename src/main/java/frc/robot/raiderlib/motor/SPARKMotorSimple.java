@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import frc.robot.raiderlib.motor.struct.MotorSimple;
@@ -15,10 +16,16 @@ public class SPARKMotorSimple extends MotorSimple{
     public SPARKMotorSimple(int canID, boolean brushless, String fileName, double minDutyCycle, boolean velocityControl, double maxOut) {
         super(canID, brushless, fileName, minDutyCycle, velocityControl, maxOut);
         this.motor = new CANSparkMax(canID, brushless ? MotorType.kBrushless : MotorType.kBrushed);
+        /**
+         * PeriodicFrame.kStatus2 contains just encoder position,
+         * so we set the frame period to 20ms as that is how WPILIB PIDControllers
+         * are running.
+         */
+        motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
     }
 
     @Override
-    public void setFeedback(boolean absolute) {
+    public void useAbsoluteForFeedback(boolean absolute) {
         motor.getPIDController().setFeedbackDevice(!absolute ? motor.getEncoder() : motor.getAbsoluteEncoder(Type.kDutyCycle));
     }
 

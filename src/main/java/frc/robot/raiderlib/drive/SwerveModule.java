@@ -397,10 +397,10 @@ public class SwerveModule {
         driveTalon.enableVoltageCompensation(true);
         driveTalon.configVoltageCompSaturation(DriveConstants.MAX_VOLTAGE);
 
-        driveTalon.config_kP(0, DriveConstants.ROBOT_TRANSLATION_P);
-        driveTalon.config_kI(0, DriveConstants.ROBOT_TRANSLATION_I);
-        driveTalon.config_kD(0, DriveConstants.ROBOT_TRANSLATION_D);
-        driveTalon.config_kF(0, DriveConstants.ROBOT_TRANSLATION_FF);
+        driveTalon.config_kP(0, DriveConstants.ROBOT_VELOCITY_P);
+        driveTalon.config_kI(0, DriveConstants.ROBOT_VELOCITY_I);
+        driveTalon.config_kD(0, DriveConstants.ROBOT_VELOCITY_D);
+        driveTalon.config_kF(0, DriveConstants.ROBOT_VELOCITY_FF);
 
         driveTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 253);
         driveTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);//This is key to odometry must be around same as code loop

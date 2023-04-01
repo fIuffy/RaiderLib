@@ -4,8 +4,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.math.BigDecimal;
+import java.util.List;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.EventMarker;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -33,6 +38,7 @@ public class DriveSystem {
     public double exportStepTime = 1.5d;
 
     public boolean spinExporting;
+    public boolean poseExporting;
     public double currentAppliedInput;
 
     public DriveSystem(XboxController controller, String exportName) {
@@ -46,7 +52,10 @@ public class DriveSystem {
         this.driveMode = DriveMode.ROBOT_CENTRIC;
 
         spinExporting = false;
+        poseExporting = false;
         currentAppliedInput = 0.0d;
+
+        DriveConstants.addPathEventMarkers();
     }
     
     /**
@@ -111,6 +120,20 @@ public class DriveSystem {
       public void disableSpinExporting() {
         this.spinExporting = false;
       }
+
+    /**
+      * Will make PIDExporting drive and export Velocity (m/s) vs x (meters)
+      */
+      public void enablePoseExporting() {
+        this.poseExporting = true;
+      }
+  
+      /**
+       * Disable spin exporting mode.
+       */
+      public void disablePoseExporting() {
+        this.poseExporting = false;
+      }
     
 
     /**
@@ -166,33 +189,6 @@ public class DriveSystem {
      */
     public void setCurrentPose(Pose2d newPose) {
         this.currentPose = newPose;
-    }
-
-    /**
-     * 
-     * @return true if there is robot translation PIDConstants
-     */
-    @SuppressWarnings("all")
-    public boolean hasTranslationPDConststants() {
-        return (DriveConstants.ROBOT_TRANSLATION_P != 0.0d && DriveConstants.ROBOT_TRANSLATION_D != 0.0d);
-    }
-
-    /**
-     * 
-     * @return true if there is robot rotation PIDConstants
-     */
-    @SuppressWarnings("all")
-    public boolean hasRotatePDConstants() {
-        return (DriveConstants.ROBOT_ROT_P != 0.0d && DriveConstants.ROBOT_ROT_D != 0.0d);
-    }
-
-    /**
-     * 
-     * @return true if there is existing SwerveModule Rotation PIDConstants
-     */
-    @SuppressWarnings("all")
-    public boolean hasSwerveRotPDConstans() {
-        return DriveConstants.SWERVE_ROT_P != 0.0d && DriveConstants.SWERVE_ROT_D != 0.0d;
     }
 
     public XboxController getController() {
@@ -273,12 +269,42 @@ public class DriveSystem {
 
     }
 
+    public Command fullAuto(String pathName) {
+        return new FollowPathWithEvents(
+            followPathCommand(pathName, true),
+            getPathMarkers(pathName),
+            DriveConstants.markerMap
+        );
+    }
+
+    public List<EventMarker> getPathMarkers(String pathName) {
+        return PathPlanner.loadPath(pathName, PathPlanner.getConstraintsFromPath(pathName)).getMarkers();
+    }
+
     /**
-     * Used for PIDExporting
-     * @return Velocity of front left motor
+     * Returns a command that follows a PathPlanner path by path name using the drive train's base methods
+     * @param pathName - Name of the path
+     * @param resetOdometry - Usually true if this is the first path being followed
+     * @return Runnable command that follows a PathPlanner path by name.
      */
-    public double getFrontLeftVelocity() {
-        return 0.0d;
+    public Command followPathCommand(String pathName, boolean resetOdometry) {
+        return followTrajectoryCommand(PathPlanner.loadPath(pathName, PathPlanner.getConstraintsFromPath(pathName)), resetOdometry);
+    }
+
+    /**
+     * Command that when executed, follows a given PathPlannerTrajectory using the drivetain's
+     * base methods.
+     * 
+     * @param traj - PathPlannerTrajectory
+     * @param isFirstPath - Resets the odometry if true
+     * @return Runnable tajectory following command
+     */
+    public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+        return null;
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        
     }
 
     /**
@@ -306,15 +332,25 @@ public class DriveSystem {
          * We use append so that we can just simply add on without needed to write to the file through one object.
          */
         try {
-            String writeString = diffSeconds+","+this.currentAppliedInput+","+(getFrontLeftVelocity()) + "\n";
+            String writeString = diffSeconds+","+this.currentAppliedInput+","+(getAvgDriveVelociy());
 
             double rotationalVeloInRad = getRotationalVelocity() * (Math.PI/180d);
-            if(spinExporting) writeString = diffSeconds+","+rotationalVeloInRad+","+(getGyroInRad()) + "\n";
+            if(spinExporting) writeString = diffSeconds+","+rotationalVeloInRad+","+(getGyroInRad());
 
+            if(poseExporting) writeString = diffSeconds+","+getAvgDriveVelociy()+","+(getCurrentPose().getX());
+            writeString+="\n";
             writer.append(writeString);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Return an average velocity (m/s) based on all motor speeds
+     * @return Velocity (m/s)
+     */
+    public double getAvgDriveVelociy() {
+        return 0.0d;
     }
 
     /**
