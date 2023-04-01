@@ -32,7 +32,9 @@ public class RobotContainer {
 
   private void configureAuto() {
       autoChooser.setDefaultOption("Wait 1 sec(do nothing)", "wait");
-      autoChooser.addOption("Forward 1m", "forwardexample");
+      autoChooser.addOption("Forward 1m", "example");
+      autoChooser.addOption("Snake", "example2");
+      autoChooser.addOption("SnakeSpin", "example3");
       SmartDashboard.putData(autoChooser);
   }
 
