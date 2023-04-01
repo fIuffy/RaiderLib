@@ -24,7 +24,7 @@ public class SwerveModule {
     public CANCoder rotateSensor;
 
     public SwerveModule(int driveMotorID, int rotationMotorID, int canCoderID, boolean isInverted) {
-        this.driveMotor = new TFXMotorSimple(driveMotorID, true, null, DriveConstants.MIN_DRIVE_DUTYCYCLE, true, DriveConstants.MAX_CONTROLPERCENT);
+        this.driveMotor = new TFXMotorSimple(driveMotorID, true, null, DriveConstants.MIN_DRIVE_DUTYCYCLE, true, DriveConstants.MAX_VELOCITY);
         configureDriveFeedback(isInverted);
 
         this.rotateMotor = new TFXMotorSimple(rotationMotorID, true, "module_rot", DriveConstants.MIN_SWERVE_ROTMOTOR_DUTYCYCLE, false, 1.0d);
@@ -282,15 +282,12 @@ public class SwerveModule {
     }
 
     public void setModuleStateDutyCycle(SwerveModuleState targetState){
-        
         // Instatiate Rotation2d object and fill with call from getCurRot2d()
         Rotation2d curPosition = getCurRot2d();
         
         // Optimize targetState with Rotation2d object pulled from above
         targetState = optimize(targetState, curPosition);
         
-        // System.out.println("curAngle: "+curPosition.getDegrees()+"\t\t\t tarAngle: "+targetState.angle.getDegrees());
-
         // Find the difference between the target and current position
         double posDiff = targetState.angle.getRadians() - curPosition.getRadians(); 
         double absDiff = Math.abs(posDiff);
@@ -314,42 +311,6 @@ public class SwerveModule {
 
             setDriveMotor(targetState.speedMetersPerSecond);
         }
-    }
-
-    /**
-     * The method to set the module to a position and speed. 
-     * This method does the opitimization internally. The 
-     * speed should be from -1.0 to 1.0 if isVeloMode is false, 
-     * and should be between -MAX_VELOCITY and MAX_VELOCITY if 
-     * isVeloMode is true.
-     * 
-     * @param targetAngle Angle to rotate module to (in degrees)
-     */
-    public void setModuleStateRotKeepSpeed(double desiredAngle){
-        
-        // Instatiate Rotation2d object and fill with call from getCurRot2d()
-        Rotation2d curPosition = getCurRot2d();
-        
-        // Optimize targetState with Rotation2d object pulled from above
-        SwerveModuleState targetState = optimize(new SwerveModuleState(getModuleState().speedMetersPerSecond, Rotation2d.fromDegrees(desiredAngle)), curPosition);
-
-        // Find the difference between the target and current position
-        double posDiff = targetState.angle.getRadians() - curPosition.getRadians(); 
-        double absDiff = Math.abs(posDiff);
-        
-        // if the distance is more than a half circle, we are going the wrong way
-        if (absDiff > Math.PI) {
-            // the distance the other way around the circle
-            posDiff = posDiff - (DriveConstants.TWO_PI * Math.signum(posDiff));
-        }
-        
-        // Convert the shortest distance of rotation to relative encoder value(use convertion factor)
-        double targetAngle = posDiff * DriveConstants.RAD_TO_ENC_FACTOR;
-        // add the encoder distance to the current encoder count
-        double outputEncValue = targetAngle + getRelEncCount();
-
-        setRotationMotorPosition(outputEncValue);
-        setDriveMotorVelocity(targetState.speedMetersPerSecond);
     }
 
     /**
@@ -420,7 +381,7 @@ public class SwerveModule {
         rotateTalon.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 0);
         rotateTalon.configSelectedFeedbackCoefficient(1/DriveConstants.RAD_TO_ENC_FACTOR);
         rotateTalon.setNeutralMode(NeutralMode.Brake);
-        rotateTalon.setInverted(true);
+        rotateTalon.setInverted(isInverted);
         rotateTalon.enableVoltageCompensation(true);
         rotateTalon.configVoltageCompSaturation(DriveConstants.MAX_VOLTAGE);
         

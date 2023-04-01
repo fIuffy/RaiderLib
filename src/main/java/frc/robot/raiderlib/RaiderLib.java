@@ -3,6 +3,7 @@ package frc.robot.raiderlib;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.raiderlib.builders.MovingPart;
 import frc.robot.raiderlib.builders.SwerveDriveSystem;
@@ -50,6 +51,33 @@ public class RaiderLib extends SubsystemBase{
         if(driveSystem != null) {
             driveSystem.periodic();
         }
+    }
+
+    public Command getAutoDriveCommand(String pathName) {
+        return driveSystem.fullAuto(pathName);
+    }
+
+    public Command driveExportVelocity() {
+        driveSystem.disablePoseExporting();
+        driveSystem.disableSpinExporting();
+        return driveSystem.exportPIDData();
+    }
+
+    public Command driveExportSpin() {
+        driveSystem.disablePoseExporting();
+        driveSystem.enableSpinExporting();
+        return driveSystem.exportPIDData();
+    }
+
+    public Command driveExportPose() {
+        driveSystem.enablePoseExporting();
+        driveSystem.disableSpinExporting();
+        return driveSystem.exportPIDData();
+    }
+
+    public Command driveExportModuleRot() {
+        driveSystem.disablePIDExport();
+        return driveSystem.exportSingleModuleRot();
     }
 
     /**

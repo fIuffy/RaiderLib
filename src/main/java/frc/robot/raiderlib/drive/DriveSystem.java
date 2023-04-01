@@ -307,6 +307,14 @@ public class DriveSystem {
         
     }
 
+    public void enableSingleModuleExport() {
+        
+    }
+
+    public Command exportSingleModuleRot() {
+        return Commands.runOnce(() -> enableSingleModuleExport());
+    }
+
     /**
      * A DriveSystems PIDExport ran periodically while exporting field is true
      */

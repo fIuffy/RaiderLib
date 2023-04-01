@@ -194,21 +194,6 @@ public class SwerveDriveSystem extends DriveSystem{
     }
 
     /**
-     * Drive the robot but only change the rotation of each module, keep the current velocity.
-     * @param desiredAngle - Desired Angle in Degrees
-     */
-    public void driveRobotCentricRotOnlyKeepVelo(double desiredAngle){
-        SwerveModuleState[] targetStates = getAllModuleStates();
-        for(int i = 0 ; i < targetStates.length; i++) {
-            targetStates[i].angle = Rotation2d.fromDegrees(desiredAngle);
-        }
-        SwerveDriveKinematics.desaturateWheelSpeeds(targetStates, DriveConstants.MAX_VELOCITY);
-        for (int i = 0; i < targetStates.length; i++) {
-            swerveModules[i].setModuleStateRotKeepSpeed(desiredAngle);
-        }
-    }
-
-    /**
      * Drive while converitng double speeds to RobotCentric ChassisSpeeds
      * @param awaySpeed x speed (double)
      * @param lateralSpeed y speed (double)
@@ -246,6 +231,11 @@ public class SwerveDriveSystem extends DriveSystem{
 
         SwerveModuleState oneSwerveState = new SwerveModuleState(moveSpeed, new Rotation2d(rotatePos));
         swerveModules[moduleNumber].setModuleState(oneSwerveState);
+    }
+
+    @Override
+    public void enableSingleModuleExport() {
+        frontLeft.rotateMotor.enablePIDExport();
     }
 
     /**
