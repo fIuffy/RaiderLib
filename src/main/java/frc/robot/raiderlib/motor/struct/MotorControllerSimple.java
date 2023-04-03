@@ -23,7 +23,7 @@ public class MotorControllerSimple {
      * @param brushless - Whether motor is brushless or not.
      * @param exportFileName - PIDExport file name.
      * @param minDutyCycle - Minimum ControlPercent input.
-     * @param velocityControl - Use velocity or not (Only really needed for things that drive wheels).
+     * @param velocityControl - Use velocity or not (Only really needed for things that drive).
      * @param maxOut - Maximum ControlPercent input.
      * @param useAbsolute - Whether we are attaching an AbsoluteEncoder or not.
      */

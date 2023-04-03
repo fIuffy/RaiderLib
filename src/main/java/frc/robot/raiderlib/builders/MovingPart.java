@@ -96,10 +96,15 @@ public class MovingPart {
         }
         if(wantedState != null) {
             for(MotorSimpleState motorState : wantedState.motorSimpleStates) {
+                double targetPos = motorState.getStatePosition();
+                double targetVelocity = motorState.getStateVelocity();
                 MotorControllerSimple targetMotor = motors.get(motorState.getCANID());
-                targetMotor.getMotor().setMotorPositional(motorState.getStatePosition());
-                Commands.waitSeconds(0.5d);
-                if(motorState.getStateVelocity() != 0.0d && Math.abs(targetMotor.getMotor().getMotorVelocity()) < 0.0375) targetMotor.getMotor().setMotorPositional(motorState.getStatePosition());
+                targetMotor.getMotor().setMotorPositional(targetPos);
+                if(targetVelocity != 0.0d) {
+                    // Make sure the motor moves to the position first
+                    Commands.waitSeconds(0.75d);
+                    targetMotor.getMotor().setMotorVelocity(targetVelocity);
+                }
             }
         }
     }

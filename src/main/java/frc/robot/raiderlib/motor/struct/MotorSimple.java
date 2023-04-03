@@ -343,6 +343,8 @@ public class MotorSimple {
     }
 
 
+
+
     public class MotorSimpleState {
         private final int canID;
         private double statePosition;
@@ -353,10 +355,10 @@ public class MotorSimple {
          * @param canID canID of motor
          * @param statePosition double
          */
-        public MotorSimpleState(int canID, double statePosition) {
+        public MotorSimpleState(int canID, double stateVelocity) {
             this.canID = canID;
-            this.statePosition = statePosition;
-            this.stateVelocity = 0.0d;
+            this.statePosition = 0.0d;
+            this.stateVelocity = stateVelocity;
         }
 
         /**
