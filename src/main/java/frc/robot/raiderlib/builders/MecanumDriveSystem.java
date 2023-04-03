@@ -100,6 +100,14 @@ public class MecanumDriveSystem extends DriveSystem{
     }
 
     @Override
+    public void zeroDriveSensors() {
+        leftFront.getMotor().resetMotorPosition();
+        leftRear.getMotor().resetMotorPosition();
+        rightFront.getMotor().resetMotorPosition();
+        rightRear.getMotor().resetMotorPosition();
+    }
+
+    @Override
     public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
         return new SequentialCommandGroup(
             new InstantCommand(() -> {

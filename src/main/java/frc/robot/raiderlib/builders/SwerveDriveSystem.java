@@ -132,6 +132,12 @@ public class SwerveDriveSystem extends DriveSystem{
     }
 
     @Override
+    public void zeroDriveSensors() {
+        zeroAllModulePosSensors();
+        zeroAllModuleMotors();
+    }
+
+    @Override
     public double getAvgDriveVelociy() {
         double velocity = 0.0d;
         for(int i=0; i<4; i++){
@@ -359,6 +365,16 @@ public class SwerveDriveSystem extends DriveSystem{
     public void zeroAllModulePosSensors(){
         for (int i=0; i<4; i++){
             swerveModules[i].zeroAbsPositionSensor();
+        }
+    }
+
+    /**
+     * Zero all SwerveModule motors.
+     */
+    public void zeroAllModuleMotors(){
+        for (int i=0; i<4; i++){
+            swerveModules[i].driveMotor.resetMotorPosition();
+            swerveModules[i].rotateMotor.resetMotorPosition();
         }
     }
 

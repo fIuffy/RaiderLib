@@ -184,6 +184,14 @@ public class DriveSystem {
     }
 
     /**
+     * Method to reset the DriveTrain's sensors in a standardized fashion.
+     */
+    public void zeroDriveSensors() {
+
+    }
+    
+
+    /**
      * Sets the robot's current position
      * @param newPose - New position
      */
@@ -211,8 +219,8 @@ public class DriveSystem {
      * Enable PID Exporting (creates a file).
      * I (Chloe) personally recommend to use an online PIDTuner to make tuning less of a trial and error thing.
      * Although using exported PID data is not required, I have created an automated export process incase it is desired.
-     * @see https://pidtuner.com
-     */
+     * @see https://pidtuner.com++
+++    */
     public void enablePIDExport() {
         try { 
             new File("/home/lvuser/pid_exports").mkdir();
@@ -228,10 +236,44 @@ public class DriveSystem {
 
     /**
      * Enabling PIDExport of motor to be ran as a command.
+     * @param driveExportMode DriveExportMode enum
      * @return Command runnable by WPILib's Command-based Structure
      */
-    public Command exportPIDData() {
+    public Command exportPIDData(DriveExportMode driveExportMode) {
+        switch(driveExportMode) {
+            case VELOCITY:
+                disablePoseExporting();
+                disableSpinExporting();
+                break;
+            case SPIN:
+                disablePoseExporting();
+                enableSpinExporting();
+            case POSITION:
+                enablePoseExporting();
+                disableSpinExporting();
+            case MODULESPIN:
+                disablePIDExport();
+                return exportSingleModuleRot();
+            default:
+                break;
+            
+        }
         return Commands.runOnce(() -> this.enablePIDExport());
+    }
+
+    public enum DriveExportMode {
+        VELOCITY,
+        SPIN,
+        POSITION,
+        MODULESPIN
+    }
+
+    /**
+     * Zeroing the DriveTrain in command form.
+     * @return Command runnable by WPILIB's Command-based Structure
+     */ 
+    public Command zeroDriveTrain() {
+        return Commands.runOnce(() -> this.zeroDriveSensors());
     }
 
     /**
@@ -322,7 +364,7 @@ public class DriveSystem {
         long difference = System.currentTimeMillis() - startTime;
         BigDecimal bd = BigDecimal.valueOf(difference).movePointLeft(3);
         double diffSeconds = bd.doubleValue();
-        double factorSpeed = (this.spinExporting) ? DriveConstants.MIN_ROTSPEED : DriveConstants.MIN_DRIVE_DUTYCYCLE;
+        double factorSpeed = (this.spinExporting) ? DriveConstants.MIN_ROTSPEED_DUTYCYCLE : DriveConstants.MIN_DRIVE_DUTYCYCLE;
         switch((int)Math.floor(diffSeconds/this.exportStepTime)) {
             case 0: this.driveAllControlPercent(0.0d); resetGyro(); break;
             case 1: this.driveAllControlPercent(factorSpeed); break;

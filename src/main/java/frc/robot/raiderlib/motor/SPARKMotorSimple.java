@@ -48,6 +48,11 @@ public class SPARKMotorSimple extends MotorSimple{
     }
 
     @Override
+    public void setEncoderPosition(double positon) {
+        motor.getEncoder().setPosition(positon);
+    }
+
+    @Override
     public void resetMotorPosition() {
         motor.getEncoder().setPosition(0.0d);
     }

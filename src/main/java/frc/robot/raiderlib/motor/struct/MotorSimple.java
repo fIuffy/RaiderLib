@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public class MotorSimple {
-
+    private final int canID;
     public boolean exporting = false;
     public String exportFile = "/home/lvuser/pid_exports/";
     public BufferedWriter writer;
@@ -25,6 +25,12 @@ public class MotorSimple {
     public double encoderConversionFactor = 1.0d;
 
     /**
+     * Current state of the motor, contains position and velocity information.
+     * Updates periodically.
+     */
+    public MotorSimpleState motorSimpleState;
+
+    /**
      * MotorSimple constructor which makes creating Motors easier as different companies make different controllers and different libraries.
      * So this is made in order to make it Standard to confuse newer 1518 programmers.
      * @param canID - ID on the CANBus.
@@ -35,10 +41,22 @@ public class MotorSimple {
      * @param maxOut - Limiter for speed input.
      */
     public MotorSimple(int canID, boolean brushless, String fileName, double minDutyCycle, boolean velocityControl, double maxOut) {
+        this.canID = canID;
         this.exportFile = this.exportFile+fileName+".csv";
         this.minDutyCycle = minDutyCycle;
         this.velocityControl = velocityControl;
         this.maxOut = maxOut;
+        this.motorSimpleState = new MotorSimpleState(this.canID, 0.0d, 0.0d);
+    }
+
+    public int getCANID() {
+        return this.canID;
+    }
+
+
+    public void setMotorState(MotorSimpleState state) {
+        this.setMotorPositional(state.statePosition);
+        if(state.stateVelocity != 0.0d) this.setMotorVelocity(state.stateVelocity);
     }
 
     /**
@@ -99,6 +117,10 @@ public class MotorSimple {
         maxSpeedCheck();
     }
 
+    public void setEncoderPosition(double positon) {
+        
+    }
+
     /**
      * Set motor encoder position to 0
      */
@@ -125,6 +147,19 @@ public class MotorSimple {
      */
     public void setPIDF(double pGain, double iGain, double dGain, double ffGain) {
 
+    }
+
+    public void updateState(double position, double velocity) {
+        motorSimpleState.setCurrentPosition(position);
+        motorSimpleState.setCurrentVelocity(velocity);
+    }
+
+    public void setState(MotorSimpleState state) {
+        this.motorSimpleState = state;
+    }
+
+    public MotorSimpleState getState() {
+        return this.motorSimpleState;
     }
 
     /**
@@ -305,5 +340,55 @@ public class MotorSimple {
      */
     public boolean isCoast() {
         return true;
+    }
+
+
+    public class MotorSimpleState {
+        private final int canID;
+        private double statePosition;
+        private double stateVelocity;
+
+        /**
+         * Create a MotorSimpleState to correlate specific positions and velocities by canID
+         * @param canID canID of motor
+         * @param statePosition double
+         */
+        public MotorSimpleState(int canID, double statePosition) {
+            this.canID = canID;
+            this.statePosition = statePosition;
+            this.stateVelocity = 0.0d;
+        }
+
+        /**
+         * Create a MotorSimpleState to correlate specific positions and velocities by canID
+         * @param canID canID of motor
+         * @param statePosition double
+         * @param stateVelocity double
+         */
+        public MotorSimpleState(int canID, double statePosition, double stateVelocity) {
+            this.canID = canID;
+            this.statePosition = statePosition;
+            this.stateVelocity = stateVelocity;
+        }
+
+        public int getCANID() {
+            return this.canID;
+        }
+
+        public double getStatePosition() {
+            return this.statePosition;
+        }
+
+        public double getStateVelocity() {
+            return this.stateVelocity;
+        }
+
+        public void setCurrentPosition(double position) {
+            this.statePosition = position;
+        }
+
+        public void setCurrentVelocity(double velocity) {
+            this.stateVelocity = velocity;
+        }
     }
 }

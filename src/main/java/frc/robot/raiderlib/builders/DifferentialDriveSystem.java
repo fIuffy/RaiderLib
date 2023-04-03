@@ -67,6 +67,14 @@ public class DifferentialDriveSystem extends DriveSystem{
         DifferentialDriveWheelSpeeds wheelSpeeds = driveKinematics.toWheelSpeeds(chassisSpeeds);
         outputWheelSpeeds(wheelSpeeds);
     }
+    
+    @Override
+    public void zeroDriveSensors() {
+        leftFront.getMotor().resetMotorPosition();
+        leftRear.getMotor().resetMotorPosition();
+        rightFront.getMotor().resetMotorPosition();
+        rightRear.getMotor().resetMotorPosition();
+    }
 
     /**
      * DifferentialDriveWheelSpeeds consumer used for driving ChassisSpeeds but assuming the inputs are in Velocity form

@@ -7,7 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.raiderlib.RaiderLib;
 
 public class RobotContainer {
@@ -15,15 +15,16 @@ public class RobotContainer {
   /** 
    * Create the RaiderLib Subsystem object
    */ 
-  public static final RaiderLib raiderLib = new RaiderLib();
+  public static RaiderLib raiderLib;
 
-  public static SendableChooser<String> autoChooser = new SendableChooser<String>();
-  public static SendableChooser<Command> driveSetupChooser = new SendableChooser<Command>();
+  public static SendableChooser<String> autoChooser;
+  
 
   public RobotContainer() {
-      configureAuto();
-      configureBindings();
-      configureSetup();
+        autoChooser = new SendableChooser<String>();
+        configureAuto();
+        configureBindings();
+        raiderLib = new RaiderLib();
   }
 
   private void configureBindings() {
@@ -31,23 +32,15 @@ public class RobotContainer {
   }
 
   private void configureAuto() {
-      autoChooser.setDefaultOption("Wait 1 sec(do nothing)", "wait");
-      autoChooser.addOption("Forward 1m", "example");
-      autoChooser.addOption("Snake", "example2");
-      autoChooser.addOption("SnakeSpin", "example3");
-      SmartDashboard.putData(autoChooser);
-  }
-
-  private void configureSetup() {
-      driveSetupChooser.addOption("VelocityExport", raiderLib.driveExportVelocity());
-      driveSetupChooser.addOption("SpinExport", raiderLib.driveExportSpin());
-      driveSetupChooser.addOption("PoseExport", raiderLib.driveExportPose());
-      driveSetupChooser.addOption("OneModuleRotExport", raiderLib.driveExportModuleRot()); // Swerve only
-      SmartDashboard.putData("Run DriveSetup", Commands.sequence(driveSetupChooser.getSelected()));
-      SmartDashboard.putData(driveSetupChooser);
+        autoChooser.setDefaultOption("Wait 1 sec(do nothing)", "wait");
+        autoChooser.addOption("Forward 1m", "example");
+        autoChooser.addOption("Snake", "example2");
+        autoChooser.addOption("SnakeSpin", "example3");
+        SmartDashboard.putData(autoChooser);
   }
 
   public Command getAutonomousCommand() {
-      return raiderLib.getAutoDriveCommand(autoChooser.getSelected());
+        if(raiderLib == null || autoChooser == null || autoChooser.getSelected() == null) return new PrintCommand("Robot Code fields not initialized yet.");
+        return raiderLib.getAutoDriveCommand(autoChooser.getSelected());
   }
 }

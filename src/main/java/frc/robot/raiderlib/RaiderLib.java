@@ -3,11 +3,15 @@ package frc.robot.raiderlib;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.raiderlib.builders.MovingPart;
 import frc.robot.raiderlib.builders.SwerveDriveSystem;
 import frc.robot.raiderlib.drive.DriveSystem;
+import frc.robot.raiderlib.drive.DriveSystem.DriveExportMode;
 
 /**
  * Subsystem that handles MovingParts as well as the ability to easily
@@ -29,7 +33,11 @@ public class RaiderLib extends SubsystemBase{
      * Create a DriveSystem object
      */
     private DriveSystem driveSystem;
-     /**
+
+
+    public static SendableChooser<Command> driveSetupChooser = new SendableChooser<Command>();
+
+    /**
       * Create an instance object for easier access to class fields.
       */
     public static RaiderLib INSTANCE;
@@ -41,6 +49,7 @@ public class RaiderLib extends SubsystemBase{
         movingParts = new ArrayList<>();
         driveSystem = new SwerveDriveSystem(new XboxController(0));
         INSTANCE = this;
+        setupDashboard();
     }
 
     @Override
@@ -53,31 +62,21 @@ public class RaiderLib extends SubsystemBase{
         }
     }
 
+    public ArrayList<MovingPart> getMovingParts() {
+        return this.movingParts;
+    }
+
     public Command getAutoDriveCommand(String pathName) {
         return driveSystem.fullAuto(pathName);
     }
-
-    public Command driveExportVelocity() {
-        driveSystem.disablePoseExporting();
-        driveSystem.disableSpinExporting();
-        return driveSystem.exportPIDData();
-    }
-
-    public Command driveExportSpin() {
-        driveSystem.disablePoseExporting();
-        driveSystem.enableSpinExporting();
-        return driveSystem.exportPIDData();
-    }
-
-    public Command driveExportPose() {
-        driveSystem.enablePoseExporting();
-        driveSystem.disableSpinExporting();
-        return driveSystem.exportPIDData();
-    }
-
-    public Command driveExportModuleRot() {
-        driveSystem.disablePIDExport();
-        return driveSystem.exportSingleModuleRot();
+    
+    private void setupDashboard() { 
+        driveSetupChooser.addOption("VelocityExport", driveSystem.exportPIDData(DriveExportMode.VELOCITY));
+        driveSetupChooser.addOption("SpinExport", driveSystem.exportPIDData(DriveExportMode.SPIN));
+        driveSetupChooser.addOption("PoseExport", driveSystem.exportPIDData(DriveExportMode.POSITION));
+        driveSetupChooser.addOption("ModuleRotExport", driveSystem.exportPIDData(DriveExportMode.MODULESPIN)); // Swerve only
+        SmartDashboard.putData("Run DriveSetup", Commands.sequence(driveSetupChooser.getSelected()));
+        SmartDashboard.putData(driveSetupChooser);
     }
 
     /**

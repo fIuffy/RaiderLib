@@ -90,6 +90,11 @@ public class DriveConstants {
     public static final double MAX_CONTROLPERCENT = 1.0d;
 
     /**
+     * Minimum ControlPercent RotationSpeed
+     */
+    public static final double MIN_ROTSPEED_DUTYCYCLE = 0.1d;
+
+    /**
      * Max voltage of battery in order to enable MotorController battery compensation 
      */
     public static final double MAX_VOLTAGE = 12.0d;
@@ -126,7 +131,7 @@ public class DriveConstants {
     /**
      * Minimum drive velocity (meters per second)
      */
-    public static final double MIN_DRIVE_VELOCITY = 1.0d;
+    public static final double MIN_DRIVE_VELOCITY = 0.75d;
 
     /**
      * Minimum RotateSpeed (Radians per second)

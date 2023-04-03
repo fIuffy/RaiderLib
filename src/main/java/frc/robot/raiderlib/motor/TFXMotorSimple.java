@@ -45,6 +45,11 @@ public class TFXMotorSimple extends MotorSimple{
     }
 
     @Override
+    public void setEncoderPosition(double positon) {
+        motor.setSelectedSensorPosition(positon);
+    }
+
+    @Override
     public void resetMotorPosition() {
         motor.setSelectedSensorPosition(0.0d);
     }
