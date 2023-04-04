@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.builders;
+package me.chloe.raiderlib.builders.drivesystems;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
@@ -16,10 +16,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.raiderlib.RaiderLib;
-import frc.robot.raiderlib.drive.DriveConstants;
-import frc.robot.raiderlib.drive.DriveSystem;
-import frc.robot.raiderlib.drive.SwerveModule;
+import me.chloe.raiderlib.RaiderLib;
+import me.chloe.raiderlib.drive.DriveConstants;
+import me.chloe.raiderlib.drive.DriveSystem;
+import me.chloe.raiderlib.drive.SwerveModule;
 
 
 /**
@@ -201,8 +201,8 @@ public class SwerveDriveSystem extends DriveSystem{
 
     /**
      * Drive while converitng double speeds to RobotCentric ChassisSpeeds
-     * @param awaySpeed x speed (double)
-     * @param lateralSpeed y speed (double)
+     * @param forwardSpeed x speed (double)
+     * @param strafeSpeed y speed (double)
      * @param rotSpeed rotate speed (double)
      */
     public void driveRobotCentric(double forwardSpeed, double strafeSpeed, double rotSpeed){

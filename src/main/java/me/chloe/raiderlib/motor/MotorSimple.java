@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.motor.struct;
+package me.chloe.raiderlib.motor;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,7 +7,11 @@ import java.math.BigDecimal;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import me.chloe.raiderlib.builders.MotorControllerSimple;
 
+/**
+ * Base constructor that is a subset of a MotorControllerSimple
+ */
 public class MotorSimple {
     private final int canID;
     public boolean exporting = false;
@@ -32,13 +36,13 @@ public class MotorSimple {
 
     /**
      * MotorSimple constructor which makes creating Motors easier as different companies make different controllers and different libraries.
-     * So this is made in order to make it Standard to confuse newer 1518 programmers.
-     * @param canID - ID on the CANBus.
-     * @param brushless - Whether motor is brushless or not.
-     * @param fileName - FileName for PID Exports.
-     * @param minDutyCycle - Minimum speed in ControlPercent format.
-     * @param velocityControl - Use velocity or not (Only really needed for things that drive wheels).
-     * @param maxOut - Limiter for speed input.
+     * So this is made in order to make it standard to lessen confusion for newer 1518 programmers.
+     * @param canID ID on the CANBus.
+     * @param brushless Whether motor is brushless or not.
+     * @param fileName FileName for PID Exports.
+     * @param minDutyCycle Min limiter for speed input.
+     * @param velocityControl Whether to use velocity or not for PIDExports.
+     * @param maxOut Max limiter for speed input.
      */
     public MotorSimple(int canID, boolean brushless, String fileName, double minDutyCycle, boolean velocityControl, double maxOut) {
         this.canID = canID;
@@ -46,14 +50,29 @@ public class MotorSimple {
         this.minDutyCycle = minDutyCycle;
         this.velocityControl = velocityControl;
         this.maxOut = maxOut;
-        this.motorSimpleState = new MotorSimpleState(this.canID, 0.0d, 0.0d);
     }
 
+    /**
+     * Get the MotorSimpleState in periodic form.
+     * @param simple MotorControllerSimple
+     */
+    public void setMotorStateController(MotorControllerSimple simple) {
+        this.motorSimpleState = new MotorSimpleState(null, 0.0d, 0.0d);
+    }
+
+    /**
+     * Get the motor's parent controller CANBus id.
+     * @return (id) int
+     */
     public int getCANID() {
         return this.canID;
     }
 
 
+    /**
+     * Set the MotorState to a target position/velocity
+     * @param state MotorSimpleState
+     */
     public void setMotorState(MotorSimpleState state) {
         this.setMotorPositional(state.statePosition);
         if(state.stateVelocity != 0.0d) this.setMotorVelocity(state.stateVelocity);
@@ -68,16 +87,16 @@ public class MotorSimple {
     }
 
     /**
-     * 
-     * @return Encoder Position multiplied by a constant factor
+     * Get the encoder positon times the conversion factor.
+     * @return double
      */
     public double getMotorPositionConverted() {
         return this.getMotorPosition()*this.encoderConversionFactor;
     }
 
     /**
-     * 
-     * @return Encoder Velocity multiplied by a constant factor
+     * Get the encoder velocity times the conversion factor.
+     * @return double
      */
     public double getMotorVelocityConverted() {
         return this.getMotorVelocity()*this.encoderConversionFactor;
@@ -193,17 +212,17 @@ public class MotorSimple {
     }
 
     /**
-     * Called to limit our ControlPercent speed to a maximum decimal 0.0-1.0
+     * Called to limit our ControlPercent speed to a maximum decimal -1.0 to 1.0
      */
     public void maxSpeedCheck() {
-        if(this.getMotorOutputPercent() > maxOut) this.setMotorControlPercent(maxOut);
+        if(Math.abs(this.getMotorOutputPercent()) > maxOut) this.setMotorControlPercent(this.getMotorOutputPercent() > 0 ? maxOut : -maxOut);
     }
 
     /**
      * Enable PID Exporting (creates a file).
      * I (Chloe) personally recommend to use an online PIDTuner to make tuning less of a trial and error thing.
      * Although using exported PID data is not required, I have created an automated export process incase it is desired.
-     * @see https://pidtuner.com
+     * Link to PIDTuner: https://pidtuner.com
      */
     public void enablePIDExport() {
         this.exporting = true;
@@ -346,49 +365,69 @@ public class MotorSimple {
 
 
     public class MotorSimpleState {
-        private final int canID;
+        private final MotorControllerSimple motorControllerSimple;
         private double statePosition;
         private double stateVelocity;
 
         /**
-         * Create a MotorSimpleState to correlate specific positions and velocities by canID
-         * @param canID canID of motor
-         * @param statePosition double
+         * Create a MotorSimpleState to correlate specific positions and velocities by MotorControllerSimple
+         * @param motorControllerSimple MotorControllerSimple of motor
+         * @param stateVelocity double
          */
-        public MotorSimpleState(int canID, double stateVelocity) {
-            this.canID = canID;
+        public MotorSimpleState(MotorControllerSimple motorControllerSimple, double stateVelocity) {
+            this.motorControllerSimple = motorControllerSimple;
             this.statePosition = 0.0d;
             this.stateVelocity = stateVelocity;
         }
 
         /**
-         * Create a MotorSimpleState to correlate specific positions and velocities by canID
-         * @param canID canID of motor
+         * Create a MotorSimpleState to correlate specific positions and velocities by MotorControllerSimple
+         * @param motorControllerSimple MotorControllerSimple of motor
          * @param statePosition double
          * @param stateVelocity double
          */
-        public MotorSimpleState(int canID, double statePosition, double stateVelocity) {
-            this.canID = canID;
+        public MotorSimpleState(MotorControllerSimple motorControllerSimple, double statePosition, double stateVelocity) {
+            this.motorControllerSimple = motorControllerSimple;
             this.statePosition = statePosition;
             this.stateVelocity = stateVelocity;
         }
 
-        public int getCANID() {
-            return this.canID;
+        /**
+         * 
+         * @return MotorControllerSimple
+         */
+        public MotorControllerSimple getController() {
+            return this.motorControllerSimple;
         }
 
+        /**
+         * State's positon
+         * @return double
+         */
         public double getStatePosition() {
             return this.statePosition;
         }
 
+        /**
+         * State's velocity
+         * @return double
+         */
         public double getStateVelocity() {
             return this.stateVelocity;
         }
 
+        /**
+         * Set state postion
+         * @param position double
+         */
         public void setCurrentPosition(double position) {
             this.statePosition = position;
         }
 
+        /**
+         * Set state velocity
+         * @param velocity double
+         */
         public void setCurrentVelocity(double velocity) {
             this.stateVelocity = velocity;
         }

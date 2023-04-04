@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.builders;
+package me.chloe.raiderlib.builders.drivesystems;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPRamseteCommand;
@@ -14,12 +14,15 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.raiderlib.RaiderLib;
-import frc.robot.raiderlib.drive.DriveConstants;
-import frc.robot.raiderlib.drive.DriveSystem;
-import frc.robot.raiderlib.motor.struct.MotorControllerSimple;
-import frc.robot.raiderlib.motor.struct.MotorControllerSimple.CommonControllers;
+import me.chloe.raiderlib.RaiderLib;
+import me.chloe.raiderlib.builders.MotorControllerSimple;
+import me.chloe.raiderlib.drive.DriveConstants;
+import me.chloe.raiderlib.drive.DriveSystem;
+import me.chloe.raiderlib.motor.CommonControllers;
 
+/**
+ * Basic drive train with four motors, two on the left, two on the right.
+ */
 public class DifferentialDriveSystem extends DriveSystem{
 
     private final DifferentialDriveKinematics driveKinematics;
@@ -152,11 +155,9 @@ public class DifferentialDriveSystem extends DriveSystem{
     }
     
     /**
-     * Double BiConsumer used by PathPlanner for setting motor speeds in duty cycle form
-     * @apiNote This is the only consumer used by PathPlanner for setting motor speeds where the form is in duty cycle form (mjansen, why??)
-     * Swerve and Mecanum ControllerCommands in PathPlanner use velocity form.
-     * @param leftVolts - Input of left motors, in volts
-     * @param rightVolts - Input of right motors, in volts
+     * Set the motors based on velocity.
+     * @param leftVelocity - Input of left motors, in velocity
+     * @param rightVelocity - Input of right motors, in velocity
      */
     public void outputMetersPerSecond(double leftVelocity, double rightVelocity) {
         leftFront.getMotor().setMotorVelocity(leftVelocity);

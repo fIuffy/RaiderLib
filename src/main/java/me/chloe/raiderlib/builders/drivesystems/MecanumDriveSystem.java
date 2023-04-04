@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.builders;
+package me.chloe.raiderlib.builders.drivesystems;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPMecanumControllerCommand;
@@ -15,12 +15,15 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.raiderlib.RaiderLib;
-import frc.robot.raiderlib.drive.DriveConstants;
-import frc.robot.raiderlib.drive.DriveSystem;
-import frc.robot.raiderlib.motor.struct.MotorControllerSimple;
-import frc.robot.raiderlib.motor.struct.MotorControllerSimple.CommonControllers;
+import me.chloe.raiderlib.RaiderLib;
+import me.chloe.raiderlib.builders.MotorControllerSimple;
+import me.chloe.raiderlib.drive.DriveConstants;
+import me.chloe.raiderlib.drive.DriveSystem;
+import me.chloe.raiderlib.motor.CommonControllers;
 
+/**
+ * Standard Mecanum drive system with four motors for four wheels.
+ */
 public class MecanumDriveSystem extends DriveSystem{
 
     private final MecanumDriveKinematics driveKinematics;

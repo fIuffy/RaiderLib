@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.drive;
+package me.chloe.raiderlib.drive;
 
 import java.util.HashMap;
 
@@ -6,6 +6,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 
+/**
+ * Suggested to be changed before performing use on any drive system.
+ */
 public class DriveConstants {
     /**
      * Four Motor

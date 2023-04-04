@@ -1,10 +1,16 @@
-package frc.robot.raiderlib.motor.struct;
+package me.chloe.raiderlib.builders;
 
-import frc.robot.raiderlib.motor.SPARKMotorSimple;
-import frc.robot.raiderlib.motor.TFXMotorSimple;
-import frc.robot.raiderlib.motor.TSRXMotorSimple;
-import frc.robot.raiderlib.motor.VSPXMotorSimple;
+import me.chloe.raiderlib.motor.CommonControllers;
+import me.chloe.raiderlib.motor.MotorSimple;
+import me.chloe.raiderlib.motor.SPARKMotorSimple;
+import me.chloe.raiderlib.motor.TFXMotorSimple;
+import me.chloe.raiderlib.motor.TSRXMotorSimple;
+import me.chloe.raiderlib.motor.VSPXMotorSimple;
 
+/**
+ * Makes handling of motors through differently branded controllers easier.
+ * Allows for PID control.
+ */
 public class MotorControllerSimple {
     private int id;
     private boolean brushless;
@@ -18,14 +24,14 @@ public class MotorControllerSimple {
     /**
      * MotorToControllerSimple constructor which makes creating Motors based on different controllers much easier.
      * Made specifically to teach newer 1518 programmers as well as make PID control structure a lot more standard.
-     * @param controller - CommonController enum (Which controller are we using).
-     * @param id - ID on the CANbus.
-     * @param brushless - Whether motor is brushless or not.
-     * @param exportFileName - PIDExport file name.
-     * @param minDutyCycle - Minimum ControlPercent input.
-     * @param velocityControl - Use velocity or not (Only really needed for things that drive).
-     * @param maxOut - Maximum ControlPercent input.
-     * @param useAbsolute - Whether we are attaching an AbsoluteEncoder or not.
+     * @param controller CommonController enum (Which controller are we using).
+     * @param id ID on the CANbus.
+     * @param brushless Whether motor is brushless or not.
+     * @param exportFileName PIDExport file name.
+     * @param minDutyCycle Minimum ControlPercent or Velocity input.
+     * @param velocityControl Whether to use velocity or not for PIDExports.
+     * @param maxOut Maximum ControlPercent or Velocity input.
+     * @param useAbsolute Whether we are attaching an AbsoluteEncoder or not.
      */
     public MotorControllerSimple(CommonControllers controller, int id, boolean brushless, String exportFileName, double minDutyCycle, boolean velocityControl, double maxOut, boolean useAbsolute) {
         this.id = id;
@@ -36,8 +42,13 @@ public class MotorControllerSimple {
         this.maxOut = maxOut;
         this.motor = getMotorSimple(controller, useAbsolute);
         if(this.motor != null) this.motor.useAbsoluteForFeedback(useAbsolute);
+        if(this.motor != null) this.motor.setMotorStateController(this);
     }
 
+    /**
+     * Get the motor being used
+     * @return MotorSimple
+     */
     public MotorSimple getMotor() {
         return this.motor;
     }
@@ -58,15 +69,5 @@ public class MotorControllerSimple {
                 return new VSPXMotorSimple(this.id, this.brushless, this.exportFileName, this.minDutyCycle, this.velocityControl, this.maxOut);
         }
         return null;
-    }
-
-    /**
-     * Common Motor Controllers I have seen since joining Raider Robotics (2022-Present)
-     */
-    public enum CommonControllers {
-        TALON_SRX,
-        TALON_FX,
-        SPARK_MAX,
-        VICTOR_SPX;
     }
 }

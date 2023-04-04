@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.motor;
+package me.chloe.raiderlib.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -6,8 +6,9 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-import frc.robot.raiderlib.motor.struct.MotorSimple;
-
+/**
+ * CrossTheRoadElectronics TalonSRX Motor usage.
+ */
 public class TSRXMotorSimple extends MotorSimple{
 
     private final TalonSRX motor;

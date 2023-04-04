@@ -75,6 +75,19 @@ test {
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
 
+apply plugin: 'java'
+
+sourceSets {
+    build {
+        java.srcDir file('src/main/java/frc/robot/raiderlib')
+
+    }
+}
+
+javadoc {
+    source = "src/main/java/me/chloe/raiderlib"
+}
+
 // Simulation configuration (e.g. environment variables).
 wpi.sim.addGui().defaultEnabled = true
 wpi.sim.addDriverstation()

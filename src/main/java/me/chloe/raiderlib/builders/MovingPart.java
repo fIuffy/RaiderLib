@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.builders;
+package me.chloe.raiderlib.builders;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,10 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.raiderlib.motor.struct.MotorControllerSimple;
-import frc.robot.raiderlib.motor.struct.MotorSimple.MotorSimpleState;
+import me.chloe.raiderlib.motor.MotorSimple.MotorSimpleState;
 
 
+/**
+ * Constructor to make using PID control with multiple motors a lot more basic and standard.
+ * A MovingPart instance allows for the ability to create static motor states that are all grouped under
+ * a specific part.
+ */
 public class MovingPart {
     private final String pseudoName, desc;
     private HashMap<Integer, MotorControllerSimple> motors = new HashMap<>();
@@ -19,7 +23,7 @@ public class MovingPart {
 
      /**
      * Constructor for creating a basic Moving Part.
-     * @param psuedoName - Readable name of part.
+     * @param pseudoName - Readable name of part.
      * @param desc - Readable description of part.
      */
     public MovingPart(String pseudoName, 
@@ -45,10 +49,16 @@ public class MovingPart {
 
     }
 
+    /**
+     * Called on Teleop start.
+     */
     public void onTeleopInit() {
 
     }
 
+    /**
+     * Called on Autonomous start.
+     */
     public void onAutoInit() {
 
     }
@@ -74,19 +84,29 @@ public class MovingPart {
     /**
      * Add a motor to the part's list of motors
      * @param motor MotorControllerSimple
-     * @return this (MovingPart)
+     * @return this (MovingPart) to be used as a builder.
      */
     public MovingPart addMotor(MotorControllerSimple motor) { 
         motors.put(motor.getMotor().getCANID(), motor);
         return this;
     }
 
-    public MovingPart addState(MovingPartState state) {
-        movingPartStates.add(state);
+    /**
+     * Add a state in the builder
+     * @param stateName Name of state
+     * @param motorSimpleStates List of MotorSimpleStates separated by commas
+     * @return this (MovingPart) to be used as builder.
+     */
+    public MovingPart addState(String stateName, MotorSimpleState... motorSimpleStates) {
+        movingPartStates.add(new MovingPartState(stateName, motorSimpleStates));
         return this;
     }
 
 
+    /**
+     * Change the MovingPart to a state created in the builder.
+     * @param stateName Desired state's name
+     */
     public void changeToState(String stateName) {
         MovingPartState wantedState = null;
         for(MovingPartState state : movingPartStates) {
@@ -98,7 +118,7 @@ public class MovingPart {
             for(MotorSimpleState motorState : wantedState.motorSimpleStates) {
                 double targetPos = motorState.getStatePosition();
                 double targetVelocity = motorState.getStateVelocity();
-                MotorControllerSimple targetMotor = motors.get(motorState.getCANID());
+                MotorControllerSimple targetMotor = motors.get(motorState.getController().getMotor().getCANID());
                 targetMotor.getMotor().setMotorPositional(targetPos);
                 if(targetVelocity != 0.0d) {
                     // Make sure the motor moves to the position first
@@ -140,14 +160,26 @@ public class MovingPart {
             this.motorSimpleStates = new ArrayList<>(Arrays.asList(motorSimpleStates));
         }
 
+        /**
+         * Get state name
+         * @return String
+         */
         public String getStateName() {
             return this.stateName;
         }
 
+        /**
+         * Get list of motor states
+         * @return ArrayList of MotorSimpleStates
+         */
         public ArrayList<MotorSimpleState> getMotorStates() {
             return this.motorSimpleStates;
         }
 
+        /**
+         * Change the current list of states
+         * @param states MotorSimpleState[]
+         */
         public void setCurrentMotorStates(MotorSimpleState[] states) {
             this.motorSimpleStates = new ArrayList<>(Arrays.asList(states));
         }

@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.drive;
+package me.chloe.raiderlib.drive;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,6 +23,9 @@ import edu.wpi.first.wpilibj.PS4Controller.Axis;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
+/**
+ * Standardized constructor of a DriveTrain
+ */
 public class DriveSystem {
     public final PIDController spinController;
     private final XboxController controller;
@@ -155,6 +158,7 @@ public class DriveSystem {
 
     /**
      * Controller driving relative to the robot ran periodically when DriveMode is ROBOT_CENTRIC
+     * @param speeds ChassisSpeeds
      */
     public void driveRobotCentricMethod(ChassisSpeeds speeds) {
 
@@ -162,6 +166,7 @@ public class DriveSystem {
 
     /**
      * Controller driving relative to the robot ran periodically when DriveMode is FIELD_CENTRIC
+     * @param speeds ChassisSpeeds
      */
     public void driveFieldCentricMethod(ChassisSpeeds speeds) {
 
@@ -219,7 +224,7 @@ public class DriveSystem {
      * Enable PID Exporting (creates a file).
      * I (Chloe) personally recommend to use an online PIDTuner to make tuning less of a trial and error thing.
      * Although using exported PID data is not required, I have created an automated export process incase it is desired.
-     * @see https://pidtuner.com++
+     * Link to PIDTuner: https://pidtuner.com
 ++    */
     public void enablePIDExport() {
         try { 
@@ -421,7 +426,8 @@ public class DriveSystem {
      * which runs from -1.0 to 1.0, with a .1 dead zone(a 0 
      * value returned if the joystick value is between -.1 and 
      * .1)
-     * @param axis
+     * @param axis double
+     * @param driver XboxController
      * @return value of the joystick, from -1.0 to 1.0 where 0.0 is centered
      * @author Rob
      */

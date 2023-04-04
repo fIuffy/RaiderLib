@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.motor;
+package me.chloe.raiderlib.motor;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -7,8 +7,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
-import frc.robot.raiderlib.motor.struct.MotorSimple;
-
+/**
+ * RevRobotics SparkMAX Motor usage.
+ */
 public class SPARKMotorSimple extends MotorSimple{
 
     private final CANSparkMax motor;

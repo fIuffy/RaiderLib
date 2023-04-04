@@ -1,4 +1,4 @@
-package frc.robot.raiderlib.drive;
+package me.chloe.raiderlib.drive;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
@@ -12,11 +12,11 @@ import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.raiderlib.motor.TFXMotorSimple;
+import me.chloe.raiderlib.motor.TFXMotorSimple;
 
 /**
  * SwerveModule class used to construct each individual module in a more simple matter.
- * @author Rob-Heslin and Chloe Quinn
+ * @author Rob Heslin, heavily revised by Chloe Quinn
  */
 public class SwerveModule {
     public TFXMotorSimple driveMotor;
@@ -79,7 +79,7 @@ public class SwerveModule {
      * @return the distance the drive wheel has traveled (in meters)
      */
     public double getDriveDistance() {
-        return driveMotor.getTalon().getSensorCollection().getIntegratedSensorPosition();
+        return driveMotor.getTalon().getSensorCollection().getIntegratedSensorPosition()*DriveConstants.ENC_TO_METERS_FACTOR;
     }
 
     /**
@@ -88,7 +88,7 @@ public class SwerveModule {
      * @return speed of the drive wheel
      */
     public double getDriveVelocity() {
-        return driveMotor.getTalon().getSensorCollection().getIntegratedSensorVelocity();
+        return driveMotor.getTalon().getSensorCollection().getIntegratedSensorVelocity()*DriveConstants.ENC_TO_METERS_FACTOR;
     }
 
     /**
@@ -247,14 +247,11 @@ public class SwerveModule {
      * @param targetState SwerveModuleState
      */
     public void setModuleState(SwerveModuleState targetState){
-        
         // Instatiate Rotation2d object and fill with call from getCurRot2d()
         Rotation2d curPosition = getCurRot2d();
         
         // Optimize targetState with Rotation2d object pulled from above
         targetState = optimize(targetState, curPosition);
-        
-        // System.out.println("curAngle: "+curPosition.getDegrees()+"\t\t\t tarAngle: "+targetState.angle.getDegrees());
 
         // Find the difference between the target and current position
         double posDiff = targetState.angle.getRadians() - curPosition.getRadians(); 

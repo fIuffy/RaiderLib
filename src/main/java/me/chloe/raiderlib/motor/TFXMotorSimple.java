@@ -1,22 +1,23 @@
-package frc.robot.raiderlib.motor;
+package me.chloe.raiderlib.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrame;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
-import frc.robot.raiderlib.motor.struct.MotorSimple;
+/**
+ * CrossTheRoadElectronics TalonFX Motor usage.
+ */
+public class TFXMotorSimple extends MotorSimple{
 
-public class VSPXMotorSimple extends MotorSimple{
-
-    private final VictorSPX motor;
+    private final TalonFX motor;
     private boolean isBrake;
 
-    public VSPXMotorSimple(int canID, boolean brushless, String fileName, double minDutyCycle, boolean velocityControl, double maxOut) {
+    public TFXMotorSimple(int canID, boolean brushless, String fileName, double minDutyCycle, boolean velocityControl, double maxOut) {
         super(canID, brushless, fileName, minDutyCycle, velocityControl, maxOut);
-        this.motor = new VictorSPX(canID);
-        motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
+        this.motor = new TalonFX(canID);
+        motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
         this.isBrake = false;
     }
 
@@ -102,7 +103,7 @@ public class VSPXMotorSimple extends MotorSimple{
 
     @Override
     public double getMotorCurrent() {
-        return 0.0d; // VictorSPX does not support this
+        return motor.getStatorCurrent();
     }
 
     @Override
@@ -120,5 +121,12 @@ public class VSPXMotorSimple extends MotorSimple{
         return !isBrake;
     }
     
-}
 
+    /**
+     * Get the motor as a TalonFX object
+     * @return MotorController as a TalonFX object
+     */
+    public TalonFX getTalon() {
+        return this.motor;
+    }
+}

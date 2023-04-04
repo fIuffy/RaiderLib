@@ -1,4 +1,4 @@
-package frc.robot.raiderlib;
+package me.chloe.raiderlib;
 
 import java.util.ArrayList;
 
@@ -8,10 +8,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.raiderlib.builders.MovingPart;
-import frc.robot.raiderlib.builders.SwerveDriveSystem;
-import frc.robot.raiderlib.drive.DriveSystem;
-import frc.robot.raiderlib.drive.DriveSystem.DriveExportMode;
+import frc.robot.RobotContainer;
+import me.chloe.raiderlib.builders.MovingPart;
+import me.chloe.raiderlib.builders.drivesystems.SwerveDriveSystem;
+import me.chloe.raiderlib.drive.DriveSystem;
+import me.chloe.raiderlib.drive.DriveSystem.DriveExportMode;
 
 /**
  * Subsystem that handles MovingParts as well as the ability to easily
@@ -76,6 +77,7 @@ public class RaiderLib extends SubsystemBase{
         driveSetupChooser.addOption("PoseExport", driveSystem.exportPIDData(DriveExportMode.POSITION));
         driveSetupChooser.addOption("ModuleRotExport", driveSystem.exportPIDData(DriveExportMode.MODULESPIN)); // Swerve only
         SmartDashboard.putData("Run DriveSetup", Commands.sequence(driveSetupChooser.getSelected()));
+        SmartDashboard.putData("Run Auto", Commands.sequence(getAutoDriveCommand(RobotContainer.autoChooser.getSelected())));
         SmartDashboard.putData(driveSetupChooser);
     }
 
