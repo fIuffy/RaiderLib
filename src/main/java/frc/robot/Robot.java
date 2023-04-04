@@ -22,6 +22,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    if(RobotContainer.raiderLib != null) RobotContainer.raiderLib.periodic();
   }
 
   @Override
@@ -41,6 +42,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.schedule();
     }
 
+    if(RobotContainer.raiderLib == null) return;
     for(MovingPart part : RobotContainer.raiderLib.getMovingParts()) {
       part.onAutoInit();
     }
@@ -57,6 +59,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    
+    if(RobotContainer.raiderLib == null) return;
     for(MovingPart part : RobotContainer.raiderLib.getMovingParts()) {
       part.onTeleopInit();
     }

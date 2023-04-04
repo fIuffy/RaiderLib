@@ -57,7 +57,7 @@ public class MotorSimple {
      * @param simple MotorControllerSimple
      */
     public void setMotorStateController(MotorControllerSimple simple) {
-        this.motorSimpleState = new MotorSimpleState(null, 0.0d, 0.0d);
+        this.motorSimpleState = new MotorSimpleState(null, 0.0d, velocityControl);
     }
 
     /**
@@ -75,7 +75,7 @@ public class MotorSimple {
      */
     public void setMotorState(MotorSimpleState state) {
         this.setMotorPositional(state.statePosition);
-        if(state.stateVelocity != 0.0d) this.setMotorVelocity(state.stateVelocity);
+        if(state.stateSpeed != 0.0d) this.setMotorVelocity(state.stateSpeed);
     }
 
     /**
@@ -170,7 +170,7 @@ public class MotorSimple {
 
     public void updateState(double position, double velocity) {
         motorSimpleState.setCurrentPosition(position);
-        motorSimpleState.setCurrentVelocity(velocity);
+        motorSimpleState.setCurrentSpeed(velocity);
     }
 
     public void setState(MotorSimpleState state) {
@@ -367,29 +367,32 @@ public class MotorSimple {
     public class MotorSimpleState {
         private final MotorControllerSimple motorControllerSimple;
         private double statePosition;
-        private double stateVelocity;
+        private double stateSpeed;
+        public boolean velocityControl;
 
         /**
-         * Create a MotorSimpleState to correlate specific positions and velocities by MotorControllerSimple
+         * Create a MotorSimpleState to correlate specific speeds by MotorControllerSimple
          * @param motorControllerSimple MotorControllerSimple of motor
-         * @param stateVelocity double
+         * @param stateSpeed double
+         * @param velocityControl When updating states, if true, sets by velocity, if false, sets by ControlPercent
          */
-        public MotorSimpleState(MotorControllerSimple motorControllerSimple, double stateVelocity) {
+        public MotorSimpleState(MotorControllerSimple motorControllerSimple, double stateSpeed, boolean velocityControl) {
             this.motorControllerSimple = motorControllerSimple;
-            this.statePosition = 0.0d;
-            this.stateVelocity = stateVelocity;
+            this.statePosition = -1;
+            this.stateSpeed = stateSpeed;
+            this.velocityControl = velocityControl;
         }
 
         /**
-         * Create a MotorSimpleState to correlate specific positions and velocities by MotorControllerSimple
+         * Create a MotorSimpleState to correlate specific positions by MotorControllerSimple
          * @param motorControllerSimple MotorControllerSimple of motor
          * @param statePosition double
-         * @param stateVelocity double
          */
-        public MotorSimpleState(MotorControllerSimple motorControllerSimple, double statePosition, double stateVelocity) {
+        public MotorSimpleState(MotorControllerSimple motorControllerSimple, double statePosition) {
             this.motorControllerSimple = motorControllerSimple;
             this.statePosition = statePosition;
-            this.stateVelocity = stateVelocity;
+            this.stateSpeed = -1;
+            this.velocityControl = false;
         }
 
         /**
@@ -409,11 +412,11 @@ public class MotorSimple {
         }
 
         /**
-         * State's velocity
+         * State's speed
          * @return double
          */
-        public double getStateVelocity() {
-            return this.stateVelocity;
+        public double getStateSpeed() {
+            return this.stateSpeed;
         }
 
         /**
@@ -425,11 +428,11 @@ public class MotorSimple {
         }
 
         /**
-         * Set state velocity
-         * @param velocity double
+         * Set state speed
+         * @param speed double
          */
-        public void setCurrentVelocity(double velocity) {
-            this.stateVelocity = velocity;
+        public void setCurrentSpeed(double speed) {
+            this.stateSpeed = speed;
         }
     }
 }

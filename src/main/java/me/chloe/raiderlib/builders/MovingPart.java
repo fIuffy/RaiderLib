@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.wpi.first.wpilibj2.command.Commands;
 import me.chloe.raiderlib.motor.MotorSimple.MotorSimpleState;
 
 
@@ -92,9 +91,22 @@ public class MovingPart {
     }
 
     /**
-     * Add a state in the builder
+     * Add an Array of motors to the part's list of motors
+     * @param ms Array of MotorControllerSimple separated by commas
+     * @return this (MovingPart) to be used as a builder.
+     */
+    public MovingPart addMotors(MotorControllerSimple... ms) { 
+        for(MotorControllerSimple m : ms) {
+            motors.put(m.getMotor().getCANID(), m);
+        }
+        
+        return this;
+    }
+
+    /**
+     * Add states in the builder
      * @param stateName Name of state
-     * @param motorSimpleStates List of MotorSimpleStates separated by commas
+     * @param motorSimpleStates Array of MotorSimpleStates separated by commas
      * @return this (MovingPart) to be used as builder.
      */
     public MovingPart addState(String stateName, MotorSimpleState... motorSimpleStates) {
@@ -107,7 +119,7 @@ public class MovingPart {
      * Change the MovingPart to a state created in the builder.
      * @param stateName Desired state's name
      */
-    public void changeToState(String stateName) {
+    public void setState(String stateName) {
         MovingPartState wantedState = null;
         for(MovingPartState state : movingPartStates) {
             if(state.getStateName().equalsIgnoreCase(stateName)) {
@@ -117,13 +129,17 @@ public class MovingPart {
         if(wantedState != null) {
             for(MotorSimpleState motorState : wantedState.motorSimpleStates) {
                 double targetPos = motorState.getStatePosition();
-                double targetVelocity = motorState.getStateVelocity();
+                double targetSpeed = motorState.getStateSpeed();
                 MotorControllerSimple targetMotor = motors.get(motorState.getController().getMotor().getCANID());
-                targetMotor.getMotor().setMotorPositional(targetPos);
-                if(targetVelocity != 0.0d) {
-                    // Make sure the motor moves to the position first
-                    Commands.waitSeconds(0.75d);
-                    targetMotor.getMotor().setMotorVelocity(targetVelocity);
+                if(targetPos != -1) {
+                    targetMotor.getMotor().setMotorPositional(targetPos);
+                }
+                if(targetSpeed != -1) {
+                    if(motorState.velocityControl) {
+                        targetMotor.getMotor().setMotorVelocity(targetSpeed);
+                    } else {
+                        targetMotor.getMotor().setMotorControlPercent(targetSpeed);
+                    }
                 }
             }
         }

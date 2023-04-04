@@ -2,7 +2,6 @@ package me.chloe.raiderlib;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -10,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import me.chloe.raiderlib.builders.MovingPart;
-import me.chloe.raiderlib.builders.drivesystems.SwerveDriveSystem;
 import me.chloe.raiderlib.drive.DriveSystem;
 import me.chloe.raiderlib.drive.DriveSystem.DriveExportMode;
 
@@ -46,9 +44,8 @@ public class RaiderLib extends SubsystemBase{
     /**
      * RaiderLib Initializer
      */
-    public RaiderLib() {
+    public RaiderLib(DriveSystem driveSystem) {
         movingParts = new ArrayList<>();
-        driveSystem = new SwerveDriveSystem(new XboxController(0));
         INSTANCE = this;
         setupDashboard();
     }
